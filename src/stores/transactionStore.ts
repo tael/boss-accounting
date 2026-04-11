@@ -1,0 +1,146 @@
+/**
+ * 거래 Zustand Store
+ * persist middleware + migrate 옵션으로 스키마 버전 관리
+ * 저장 실패 시 storage-error 커스텀 이벤트 발생
+ */
+
+import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import type { Transaction, TransactionInput, TransactionFilter } from '@/types/transaction'
+import { localStorageAdapter } from '@/utils/storage'
+
+/** Store 스키마 버전 */
+const STORE_VERSION = 1
+
+/** 저장 키 */
+const STORAGE_KEY = 'boss-accounting-transactions'
+
+interface TransactionState {
+  transactions: Transaction[]
+  // Actions
+  addTransaction: (input: TransactionInput) => Transaction
+  updateTransaction: (id: string, update: Partial<TransactionInput>) => boolean
+  deleteTransaction: (id: string) => boolean
+  getAll: () => Transaction[]
+  getByDateRange: (dateFrom: string, dateTo: string) => Transaction[]
+  getByCategory: (categoryId: string) => Transaction[]
+  getFiltered: (filter: TransactionFilter) => Transaction[]
+  clearAll: () => void
+}
+
+/** UUID 생성 (crypto.randomUUID 사용) */
+function generateId(): string {
+  return crypto.randomUUID()
+}
+
+export const useTransactionStore = create<TransactionState>()(
+  persist(
+    (set, get) => ({
+      transactions: [],
+
+      addTransaction: (input: TransactionInput): Transaction => {
+        const now = new Date().toISOString()
+        const transaction: Transaction = {
+          id: generateId(),
+          ...input,
+          createdAt: now,
+          updatedAt: now,
+        }
+        set((state) => ({ transactions: [...state.transactions, transaction] }))
+        return transaction
+      },
+
+      updateTransaction: (id: string, update: Partial<TransactionInput>): boolean => {
+        const { transactions } = get()
+        const index = transactions.findIndex((tx) => tx.id === id)
+        if (index === -1) return false
+
+        const updated: Transaction = {
+          ...transactions[index]!,
+          ...update,
+          updatedAt: new Date().toISOString(),
+        }
+        const next = [...transactions]
+        next[index] = updated
+        set({ transactions: next })
+        return true
+      },
+
+      deleteTransaction: (id: string): boolean => {
+        const { transactions } = get()
+        const exists = transactions.some((tx) => tx.id === id)
+        if (!exists) return false
+
+        set((state) => ({
+          transactions: state.transactions.filter((tx) => tx.id !== id),
+        }))
+        return true
+      },
+
+      getAll: (): Transaction[] => {
+        return get().transactions
+      },
+
+      getByDateRange: (dateFrom: string, dateTo: string): Transaction[] => {
+        return get().transactions.filter(
+          (tx) => tx.date >= dateFrom && tx.date <= dateTo,
+        )
+      },
+
+      getByCategory: (categoryId: string): Transaction[] => {
+        return get().transactions.filter((tx) => tx.categoryId === categoryId)
+      },
+
+      getFiltered: (filter: TransactionFilter): Transaction[] => {
+        return get().transactions.filter((tx) => {
+          if (filter.type && tx.type !== filter.type) return false
+          if (filter.categoryId && tx.categoryId !== filter.categoryId) return false
+          if (filter.dateFrom && tx.date < filter.dateFrom) return false
+          if (filter.dateTo && tx.date > filter.dateTo) return false
+          if (filter.amountMin !== undefined && tx.amountKRW < filter.amountMin) return false
+          if (filter.amountMax !== undefined && tx.amountKRW > filter.amountMax) return false
+          if (filter.memoSearch) {
+            const keyword = filter.memoSearch.toLowerCase()
+            if (!tx.memo?.toLowerCase().includes(keyword)) return false
+          }
+          return true
+        })
+      },
+
+      clearAll: (): void => {
+        set({ transactions: [] })
+      },
+    }),
+    {
+      name: STORAGE_KEY,
+      storage: createJSONStorage(() => localStorageAdapter),
+      version: STORE_VERSION,
+      migrate: (persistedState, version) => {
+        // 버전별 마이그레이션 로직
+        switch (version) {
+          case 0:
+            // v0 → v1: 향후 필드 추가 시 여기에 마이그레이션 작성
+            return persistedState
+          default:
+            return persistedState
+        }
+      },
+      onRehydrateStorage: () => {
+        return (_state, error) => {
+          if (error) {
+            console.error('[TransactionStore] 데이터 복원 실패:', error)
+            window.dispatchEvent(
+              new CustomEvent('storage-error', {
+                detail: {
+                  key: STORAGE_KEY,
+                  error: error instanceof Error ? error.message : String(error),
+                  type: 'unknown',
+                },
+              }),
+            )
+          }
+        }
+      },
+    },
+  ),
+)
