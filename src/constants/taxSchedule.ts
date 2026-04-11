@@ -118,7 +118,7 @@ export function getUpcomingSchedule(
   currentMonth: string,
   withinMonths: number = 2,
 ): TaxScheduleItem[] {
-  const [year, month] = currentMonth.split('-').map(Number)
+  const [, month] = currentMonth.split('-').map(Number)
   const results: TaxScheduleItem[] = []
 
   for (let i = 0; i <= withinMonths; i++) {

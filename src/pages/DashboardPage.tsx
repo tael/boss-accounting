@@ -4,11 +4,6 @@ import MonthSummary from '@/components/dashboard/MonthSummary'
 import { TAX_SCHEDULE } from '@/constants/taxSchedule'
 import { BOOK_REFERENCES } from '@/constants/bookReferences'
 
-function getCurrentYearMonth(): string {
-  const now = new Date()
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
-}
-
 function getUpcoming(): typeof TAX_SCHEDULE {
   const now = new Date()
   const currentMM = String(now.getMonth() + 1).padStart(2, '0')

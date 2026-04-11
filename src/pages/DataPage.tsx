@@ -63,7 +63,6 @@ export default function DataPage() {
       }
 
       clearAll()
-      const { addTransaction } = useTransactionStore.getState()
       for (const tx of result.transactions ?? []) {
         // id, createdAt, updatedAt을 보존하여 직접 set하는 대신 스토어 액션 우회
         useTransactionStore.setState((state) => ({

@@ -3,7 +3,6 @@ import { useTransactionStore } from '@/stores/transactionStore'
 import {
   calculateIncomeStatement,
   filterByMonth,
-  calculateChangeRate,
 } from '@/utils/financial'
 import StatCard from './StatCard'
 
