@@ -24,13 +24,12 @@ export interface ExportData {
 export const EXPORT_VERSION = 1
 
 /**
- * 데이터를 JSON 파일로 내보내기
- * 브라우저 다운로드 트리거
+ * 데이터를 JSON 문자열로 직렬화 (드라이브 업로드 등에 활용)
  */
-export function exportToJSON(
+export function serializeToJSON(
   transactions: Transaction[],
   settings?: Record<string, unknown>,
-): void {
+): string {
   const data: ExportData = {
     version: EXPORT_VERSION,
     exportedAt: new Date().toISOString(),
@@ -38,8 +37,18 @@ export function exportToJSON(
     transactions,
     settings,
   }
+  return JSON.stringify(data, null, 2)
+}
 
-  const json = JSON.stringify(data, null, 2)
+/**
+ * 데이터를 JSON 파일로 내보내기
+ * 브라우저 다운로드 트리거
+ */
+export function exportToJSON(
+  transactions: Transaction[],
+  settings?: Record<string, unknown>,
+): void {
+  const json = serializeToJSON(transactions, settings)
   const blob = new Blob([json], { type: 'application/json;charset=utf-8' })
   const url = URL.createObjectURL(blob)
 
@@ -65,6 +74,24 @@ export interface ImportResult {
 }
 
 /**
+ * JSON 문자열에서 데이터 파싱 (드라이브 복원 등에 활용)
+ */
+export function parseFromJSONString(jsonString: string): ImportResult {
+  try {
+    const data: unknown = JSON.parse(jsonString)
+    return _parseExportData(data)
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      return { success: false, error: 'JSON 파싱 오류: 데이터가 손상되었을 수 있습니다.' }
+    }
+    return {
+      success: false,
+      error: `데이터를 읽는 중 오류가 발생했습니다: ${error instanceof Error ? error.message : String(error)}`,
+    }
+  }
+}
+
+/**
  * JSON 파일에서 데이터 가져오기
  * @param file 업로드된 파일 객체
  */
@@ -72,38 +99,7 @@ export async function importFromJSON(file: File): Promise<ImportResult> {
   try {
     const text = await file.text()
     const data: unknown = JSON.parse(text)
-
-    if (!isExportData(data)) {
-      return {
-        success: false,
-        error: '올바른 형식의 백업 파일이 아닙니다.',
-      }
-    }
-
-    if (data.appId !== 'boss-accounting') {
-      return {
-        success: false,
-        error: '다른 앱의 백업 파일입니다.',
-      }
-    }
-
-    // 버전별 마이그레이션 (향후 확장)
-    if (data.version > EXPORT_VERSION) {
-      return {
-        success: false,
-        error: `지원하지 않는 백업 버전입니다. (버전 ${data.version})`,
-      }
-    }
-
-    // 거래 데이터 검증
-    const transactions = validateTransactions(data.transactions)
-
-    return {
-      success: true,
-      transactions,
-      settings: data.settings,
-      transactionCount: transactions.length,
-    }
+    return _parseExportData(data)
   } catch (error) {
     if (error instanceof SyntaxError) {
       return { success: false, error: 'JSON 파싱 오류: 파일이 손상되었을 수 있습니다.' }
@@ -112,6 +108,41 @@ export async function importFromJSON(file: File): Promise<ImportResult> {
       success: false,
       error: `파일을 읽는 중 오류가 발생했습니다: ${error instanceof Error ? error.message : String(error)}`,
     }
+  }
+}
+
+/** 파싱된 객체에서 ImportResult 추출 (내부 공유 함수) */
+function _parseExportData(data: unknown): ImportResult {
+  if (!isExportData(data)) {
+    return {
+      success: false,
+      error: '올바른 형식의 백업 파일이 아닙니다.',
+    }
+  }
+
+  if (data.appId !== 'boss-accounting') {
+    return {
+      success: false,
+      error: '다른 앱의 백업 파일입니다.',
+    }
+  }
+
+  // 버전별 마이그레이션 (향후 확장)
+  if (data.version > EXPORT_VERSION) {
+    return {
+      success: false,
+      error: `지원하지 않는 백업 버전입니다. (버전 ${data.version})`,
+    }
+  }
+
+  // 거래 데이터 검증
+  const transactions = validateTransactions(data.transactions)
+
+  return {
+    success: true,
+    transactions,
+    settings: data.settings,
+    transactionCount: transactions.length,
   }
 }
 

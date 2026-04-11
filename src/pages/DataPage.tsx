@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { useTransactionStore } from '@/stores/transactionStore'
 import { exportToJSON, importFromJSON } from '@/utils/exportImport'
+import GoogleDriveBackup from '@/components/data/GoogleDriveBackup'
 
 function getLocalStorageUsageKB(): number {
   try {
@@ -181,6 +182,9 @@ export default function DataPage() {
           {confirmClear ? '정말 삭제합니다 (한 번 더 클릭)' : '모든 데이터 삭제'}
         </button>
       </div>
+
+      {/* 구글 드라이브 백업 */}
+      <GoogleDriveBackup />
     </div>
   )
 }

@@ -36,3 +36,4 @@ coverage/
 
 # Vite 캐시
 .vite/
+.omc/
