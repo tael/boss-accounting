@@ -18,10 +18,14 @@ export interface Settings {
   fiscalYearStartMonth: number
   /** 사업자 이름 (선택) */
   businessName?: string
-  /** 사업자 유형: 일반과세자 | 간이과세자 | 면세사업자 */
-  taxType: 'general' | 'simplified' | 'exempt'
+  /** 사업자 유형: 일반과세자 | 간이과세자 */
+  taxType: 'general' | 'simplified'
   /** 대시보드 기본 표시 기간: 'month' | 'quarter' | 'year' */
   defaultPeriod: 'month' | 'quarter' | 'year'
+  /** 직원 유무 (원천세 신고 필요 여부) */
+  hasEmployees: boolean
+  /** 온보딩 완료 여부 */
+  onboardingCompleted: boolean
 }
 
 const DEFAULT_SETTINGS: Settings = {
@@ -29,11 +33,16 @@ const DEFAULT_SETTINGS: Settings = {
   fiscalYearStartMonth: 1,
   taxType: 'general',
   defaultPeriod: 'month',
+  hasEmployees: false,
+  onboardingCompleted: false,
 }
 
 interface SettingsState extends Settings {
   updateSettings: (partial: Partial<Settings>) => void
   resetSettings: () => void
+  setTaxType: (taxType: Settings['taxType']) => void
+  setHasEmployees: (hasEmployees: boolean) => void
+  setOnboardingCompleted: (onboardingCompleted: boolean) => void
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -47,6 +56,18 @@ export const useSettingsStore = create<SettingsState>()(
 
       resetSettings: (): void => {
         set({ ...DEFAULT_SETTINGS })
+      },
+
+      setTaxType: (taxType: Settings['taxType']): void => {
+        set({ taxType })
+      },
+
+      setHasEmployees: (hasEmployees: boolean): void => {
+        set({ hasEmployees })
+      },
+
+      setOnboardingCompleted: (onboardingCompleted: boolean): void => {
+        set({ onboardingCompleted })
       },
     }),
     {

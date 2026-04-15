@@ -5,7 +5,15 @@
 
 import type { Transaction } from '@/types/transaction'
 import type { CategorySummary, IncomeStatement, CashFlowEntry } from '@/types/financial'
-import { getCategoryName } from '@/constants/categories'
+import { getCategoryName, EXPENSE_CATEGORIES } from '@/constants/categories'
+import type { BookReferenceKey } from '@/constants/bookReferences'
+
+export interface FinancialInsight {
+  type: 'warning' | 'info' | 'success'
+  message: string
+  bookRefKey?: BookReferenceKey // bookReferences 키
+  priority: number   // 높을수록 먼저 표시
+}
 
 /**
  * 카테고리별 합계 계산
@@ -129,4 +137,143 @@ export function filterByDateRange(
 export function calculateChangeRate(current: number, previous: number): number {
   if (previous === 0) return 0
   return ((current - previous) / Math.abs(previous)) * 100
+}
+
+/**
+ * 데이터 기반 인사이트 생성
+ */
+export function generateInsights(transactions: Transaction[]): FinancialInsight[] {
+  const insights: FinancialInsight[] = []
+
+  if (transactions.length === 0) {
+    return [
+      {
+        type: 'info',
+        message: '거래를 입력하면 맞춤 인사이트를 제공해드려요.',
+        priority: 0,
+      },
+    ]
+  }
+
+  const now = new Date()
+  const thisMonth = now.toISOString().slice(0, 7) // YYYY-MM
+
+  const currentMonthTransactions = filterByMonth(transactions, thisMonth)
+  const incomeStatement = calculateIncomeStatement(currentMonthTransactions, thisMonth)
+
+  // 1. 인건비 비중 > 40%
+  const laborExpense =
+    incomeStatement.expenseByCategory.find((c) => c.categoryId === 'expense-labor')?.totalKRW ?? 0
+  if (incomeStatement.totalIncomeKRW > 0) {
+    const laborRatio = (laborExpense / incomeStatement.totalIncomeKRW) * 100
+    if (laborRatio > 40) {
+      insights.push({
+        type: 'warning',
+        message: `인건비가 매출의 ${Math.round(laborRatio)}%입니다. 적정 수준(30% 이하)을 초과했어요.`,
+        bookRefKey: 'transactions.expenseDeduction',
+        priority: 5,
+      })
+    }
+  }
+
+  // 2. 이익률 < 10%
+  if (incomeStatement.totalIncomeKRW > 0 && incomeStatement.profitMarginPct < 10) {
+    insights.push({
+      type: 'warning',
+      message: `이익률이 ${Math.round(incomeStatement.profitMarginPct)}%로 낮습니다. 비용 구조를 점검해보세요.`,
+      bookRefKey: 'analysis.breakEven',
+      priority: 4,
+    })
+  }
+
+  // 3. 이익률 > 30%
+  if (incomeStatement.totalIncomeKRW > 0 && incomeStatement.profitMarginPct > 30) {
+    insights.push({
+      type: 'success',
+      message: `이익률이 ${Math.round(incomeStatement.profitMarginPct)}%로 양호합니다! 잘 하고 계세요.`,
+      bookRefKey: 'dashboard.profitMargin',
+      priority: 3,
+    })
+  }
+
+  // 4. 3개월 연속 매출 증가
+  const cashFlow = calculateCashFlow(transactions)
+  if (cashFlow.length >= 3) {
+    const last3Months = cashFlow.slice(-3)
+    if (
+      last3Months[1].inflowKRW > last3Months[0].inflowKRW &&
+      last3Months[2].inflowKRW > last3Months[1].inflowKRW
+    ) {
+      insights.push({
+        type: 'success',
+        message: '3개월 연속 매출이 증가하고 있어요!',
+        priority: 2,
+      })
+    }
+  }
+
+  return insights.sort((a, b) => b.priority - a.priority)
+}
+
+export interface CostStructure {
+  avgFixedCost: number
+  avgVariableCost: number
+  avgRevenue: number
+  monthRange: { from: string; to: string }
+}
+
+/**
+ * 최근 N개월 거래를 기반으로 고정비/변동비/매출 평균 계산
+ * EXPENSE_CATEGORIES의 costType으로 fixed/variable 분류 (semi는 고정비에 포함)
+ */
+export function calculateCostStructure(
+  transactions: Transaction[],
+  months: number = 3,
+): CostStructure {
+  if (transactions.length === 0) {
+    return { avgFixedCost: 0, avgVariableCost: 0, avgRevenue: 0, monthRange: { from: '', to: '' } }
+  }
+
+  // 모든 거래에서 YYYY-MM 추출 후 최근 N개월 선택
+  const allMonths = Array.from(new Set(transactions.map((tx) => tx.date.slice(0, 7)))).sort()
+  const targetMonths = allMonths.slice(-months)
+
+  if (targetMonths.length === 0) {
+    return { avgFixedCost: 0, avgVariableCost: 0, avgRevenue: 0, monthRange: { from: '', to: '' } }
+  }
+
+  // costType 조회 맵: categoryId → 'fixed' | 'variable' | 'semi'
+  const costTypeMap = new Map(
+    EXPENSE_CATEGORIES.map((c) => [c.id, c.costType ?? 'semi']),
+  )
+
+  let totalFixed = 0
+  let totalVariable = 0
+  let totalRevenue = 0
+
+  for (const month of targetMonths) {
+    const monthTxs = transactions.filter((tx) => tx.date.startsWith(month))
+
+    for (const tx of monthTxs) {
+      if (tx.type === 'income') {
+        totalRevenue += tx.amountKRW
+      } else {
+        const ct = costTypeMap.get(tx.categoryId) ?? 'semi'
+        if (ct === 'variable') {
+          totalVariable += tx.amountKRW
+        } else {
+          // fixed, semi 모두 고정비로 집계
+          totalFixed += tx.amountKRW
+        }
+      }
+    }
+  }
+
+  const count = targetMonths.length
+  return {
+    avgFixedCost: Math.round(totalFixed / count),
+    avgVariableCost: Math.round(totalVariable / count),
+    avgRevenue: Math.round(totalRevenue / count),
+    monthRange: { from: targetMonths[0]!, to: targetMonths[targetMonths.length - 1]! },
+  }
 }

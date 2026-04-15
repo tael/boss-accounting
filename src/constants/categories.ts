@@ -9,14 +9,14 @@ export const INCOME_CATEGORIES: Category[] = [
 
 /** 기본 비용 카테고리 */
 export const EXPENSE_CATEGORIES: Category[] = [
-  { id: 'expense-labor', type: 'expense', name: '인건비', order: 1 },
-  { id: 'expense-rent', type: 'expense', name: '임차료', order: 2 },
-  { id: 'expense-supplies', type: 'expense', name: '소모품비', order: 3 },
-  { id: 'expense-entertainment', type: 'expense', name: '접대비', order: 4 },
-  { id: 'expense-communication', type: 'expense', name: '통신비', order: 5 },
-  { id: 'expense-transport', type: 'expense', name: '교통비', order: 6 },
-  { id: 'expense-depreciation', type: 'expense', name: '감가상각비', order: 7 },
-  { id: 'expense-other', type: 'expense', name: '기타비용', order: 8 },
+  { id: 'expense-labor', type: 'expense', name: '인건비', order: 1, costType: 'fixed' },
+  { id: 'expense-rent', type: 'expense', name: '임차료', order: 2, costType: 'fixed' },
+  { id: 'expense-supplies', type: 'expense', name: '소모품비', order: 3, costType: 'variable' },
+  { id: 'expense-entertainment', type: 'expense', name: '접대비', order: 4, costType: 'variable' },
+  { id: 'expense-communication', type: 'expense', name: '통신비', order: 5, costType: 'fixed' },
+  { id: 'expense-transport', type: 'expense', name: '교통비', order: 6, costType: 'variable' },
+  { id: 'expense-depreciation', type: 'expense', name: '감가상각비', order: 7, costType: 'fixed' },
+  { id: 'expense-other', type: 'expense', name: '기타비용', order: 8, costType: 'semi' },
 ]
 
 /** 전체 카테고리 목록 */

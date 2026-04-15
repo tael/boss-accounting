@@ -27,12 +27,16 @@ export default function TransactionForm({
   )
   const [categoryId, setCategoryId] = useState(initialData?.categoryId ?? '')
   const [memo, setMemo] = useState(initialData?.memo ?? '')
+  const [isVatDeductible, setIsVatDeductible] = useState(
+    initialData?.isVatDeductible !== false, // 기본 true
+  )
   const [errors, setErrors] = useState<{ field: string; message: string }[]>([])
   const [submitting, setSubmitting] = useState(false)
 
   const handleTypeChange = (next: TransactionType) => {
     setType(next)
     setCategoryId('') // 유형 바뀌면 카테고리 초기화
+    setIsVatDeductible(true) // 유형 변경 시 부가세 공제 여부 초기화
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -44,6 +48,7 @@ export default function TransactionForm({
       amountKRW: amount as number,
       categoryId,
       memo: memo.trim() || undefined,
+      isVatDeductible: type === 'expense' ? isVatDeductible : undefined,
     }
 
     const result = validateTransaction(input)
@@ -161,6 +166,26 @@ export default function TransactionForm({
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
+
+      {/* 부가세 공제 대상 (비용일 때만 표시) */}
+      {type === 'expense' && (
+        <div>
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={isVatDeductible}
+              onChange={(e) => setIsVatDeductible(e.target.checked)}
+              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-sm font-medium text-gray-700">부가세 공제 대상</span>
+          </label>
+          {!isVatDeductible && (
+            <p className="mt-1 text-xs text-amber-600">
+              간이영수증 · 인건비 등 적격증빙 미수취 비용은 매입세액 공제 불가
+            </p>
+          )}
+        </div>
+      )}
 
       {/* 버튼 */}
       <div className="flex gap-2 pt-2">

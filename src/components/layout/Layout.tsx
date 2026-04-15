@@ -2,8 +2,12 @@ import { Outlet } from 'react-router'
 import { Header } from './Header'
 import { Sidebar } from './Sidebar'
 import { ToastProvider } from '@/components/common/Toast'
+import { OnboardingModal } from '@/components/common/OnboardingModal'
+import { useSettingsStore } from '@/stores/settingsStore'
 
 export function Layout() {
+  const onboardingCompleted = useSettingsStore((s) => s.onboardingCompleted)
+
   return (
     <ToastProvider>
       <div className="flex flex-col h-screen bg-gray-50">
@@ -15,6 +19,7 @@ export function Layout() {
           </main>
         </div>
       </div>
+      <OnboardingModal isOpen={!onboardingCompleted} />
     </ToastProvider>
   )
 }

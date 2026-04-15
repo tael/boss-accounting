@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useTransactionStore } from '@/stores/transactionStore'
 import MonthSummary from '@/components/dashboard/MonthSummary'
+import InsightCard from '@/components/dashboard/InsightCard'
 import { TAX_SCHEDULE } from '@/constants/taxSchedule'
 import { BOOK_REFERENCES } from '@/constants/bookReferences'
 
@@ -47,6 +48,8 @@ export default function DashboardPage() {
       <h1 className="text-xl font-bold text-gray-900">대시보드</h1>
 
       <MonthSummary />
+
+      <InsightCard />
 
       {/* 다가오는 세금 일정 */}
       <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">

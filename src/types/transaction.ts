@@ -18,6 +18,8 @@ export interface Transaction {
   categoryId: string
   /** 메모 (선택) */
   memo?: string
+  /** 부가세 공제 가능 여부 (적격증빙 수취). expense 타입에만 유효, 기본 true */
+  isVatDeductible?: boolean
   /** 생성 시각 (ISO 8601) */
   createdAt: string
   /** 수정 시각 (ISO 8601) */

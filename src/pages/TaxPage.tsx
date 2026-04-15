@@ -3,14 +3,22 @@ import VatCalculator from '@/components/tax/VatCalculator'
 import IncomeTaxCalc from '@/components/tax/IncomeTaxCalc'
 import TaxTips from '@/components/tax/TaxTips'
 import { BOOK_REFERENCES } from '@/constants/bookReferences'
+import { useSettingsStore } from '@/stores/settingsStore'
 
 export default function TaxPage() {
   const vatRef = BOOK_REFERENCES['tax.vat']
   const incomeTaxRef = BOOK_REFERENCES['tax.incomeTax']
+  const taxType = useSettingsStore((s) => s.taxType)
 
   return (
     <div className="p-4 space-y-6 max-w-4xl mx-auto">
       <h1 className="text-xl font-bold text-gray-900">세금</h1>
+
+      {taxType === 'simplified' && (
+        <div className="rounded-xl bg-blue-50 border border-blue-200 px-4 py-3 text-sm text-blue-700">
+          간이과세자는 부가세를 연 1회 신고합니다 (1월 1일에서 25일)
+        </div>
+      )}
 
       <TaxDisclaimer />
 
