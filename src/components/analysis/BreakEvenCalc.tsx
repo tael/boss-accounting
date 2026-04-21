@@ -20,7 +20,13 @@ export default function BreakEvenCalc() {
   const variableRatio = totalCost > 0 ? variableCostKRW / totalCost : 0
   const canCalculate = fixedCostKRW > 0 && variableRatio < 1
 
-  const bepRevenue = canCalculate ? Math.ceil(fixedCostKRW / (1 - variableRatio)) : null
+  const rawBep = canCalculate ? fixedCostKRW / (1 - variableRatio) : null
+  const bepRevenue =
+    rawBep === null || !isFinite(rawBep) || isNaN(rawBep)
+      ? null
+      : rawBep < 0
+        ? -1  // sentinel: 음수 BEP
+        : Math.ceil(rawBep)
 
   function handleAutoLoad() {
     const result = calculateCostStructure(transactions, 3)
@@ -74,7 +80,7 @@ export default function BreakEvenCalc() {
         </div>
       </div>
 
-      {canCalculate && bepRevenue !== null ? (
+      {canCalculate && bepRevenue !== null && bepRevenue !== -1 ? (
         <div className="bg-blue-50 rounded-lg p-4 space-y-2">
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">손익분기 매출액</span>
@@ -87,6 +93,14 @@ export default function BreakEvenCalc() {
           <p className="text-xs text-gray-500 mt-1 pt-2 border-t border-blue-100">
             이 금액 이상 매출이 나야 손해가 없습니다.
           </p>
+        </div>
+      ) : canCalculate && bepRevenue === -1 ? (
+        <div className="bg-orange-50 rounded-lg p-4 text-center text-sm text-orange-600">
+          현재 비용 구조로는 BEP 달성 불가
+        </div>
+      ) : canCalculate && bepRevenue === null ? (
+        <div className="bg-red-50 rounded-lg p-4 text-center text-sm text-red-500">
+          계산 불가 — 입력값을 다시 확인해 주세요.
         </div>
       ) : (
         <div className="bg-gray-50 rounded-lg p-4 text-center text-sm text-gray-400">

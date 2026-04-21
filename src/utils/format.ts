@@ -84,3 +84,15 @@ export function formatChangeRate(rate: number): string {
 export function formatMargin(marginPct: number): string {
   return `${marginPct.toFixed(1)}%`
 }
+
+/**
+ * 로컬 시간 기준 오늘 날짜를 YYYY-MM-DD 형식으로 반환
+ * toISOString()은 UTC 기준이므로 사용 금지
+ */
+export function getTodayLocal(): string {
+  const d = new Date()
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}

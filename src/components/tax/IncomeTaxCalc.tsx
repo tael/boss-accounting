@@ -41,7 +41,7 @@ export default function IncomeTaxCalc() {
     : 0
 
   function handleDeductionChange(field: keyof TaxDeductions, value: string) {
-    const num = parseInt(value.replace(/,/g, ''), 10)
+    const num = parseKRW(value)
     setDeductions((prev) => ({
       ...prev,
       [field]: isNaN(num) ? 0 : Math.max(0, num),

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTransactionStore } from '@/stores/transactionStore'
 import { validateTransaction, getFieldError } from '@/utils/validation'
+import { getTodayLocal } from '@/utils/format'
 import type { TransactionInput, TransactionType } from '@/types/transaction'
 import CategorySelect from './CategorySelect'
 
@@ -19,7 +20,7 @@ export default function TransactionForm({
   const isEdit = Boolean(initialData?.id)
 
   const [type, setType] = useState<TransactionType>(initialData?.type ?? 'income')
-  const [date, setDate] = useState(() => initialData?.date ?? new Date().toISOString().slice(0, 10))
+  const [date, setDate] = useState(() => initialData?.date ?? getTodayLocal())
   const [amountRaw, setAmountRaw] = useState(
     initialData?.amountKRW !== undefined ? String(initialData.amountKRW) : '',
   )

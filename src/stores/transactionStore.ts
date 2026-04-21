@@ -27,9 +27,16 @@ interface TransactionState {
   bulkAddTransactions: (inputs: TransactionInput[]) => void
 }
 
-/** UUID 생성 (crypto.randomUUID 사용) */
+/** UUID 생성 (crypto.randomUUID 사용, non-secure context fallback 포함) */
 function generateId(): string {
-  return crypto.randomUUID()
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+  // fallback for non-secure contexts
+  return 'xxxx-xxxx-4xxx-yxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0
+    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
+  }) + '-' + Date.now().toString(36)
 }
 
 export const useTransactionStore = create<TransactionState>()(
