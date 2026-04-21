@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { useTransactionStore } from '@/stores/transactionStore'
 import { exportToJSON, importFromJSON } from '@/utils/exportImport'
+import { buildSampleTransactions } from '@/utils/sampleData'
 import GoogleDriveBackup from '@/components/data/GoogleDriveBackup'
 
 function getLocalStorageUsageKB(): number {
@@ -76,6 +77,19 @@ export default function DataPage() {
     }
   }
 
+  const handleLoadSample = () => {
+    const confirmed = window.confirm(
+      '예시 데이터 38건을 추가합니다. 기존 데이터는 유지됩니다.\n계속하시겠습니까?',
+    )
+    if (!confirmed) return
+
+    const samples = buildSampleTransactions()
+    for (const tx of samples) {
+      useTransactionStore.getState().addTransaction(tx)
+    }
+    showMessage('success', `예시 데이터 ${samples.length}건을 추가했습니다.`)
+  }
+
   const handleClearAll = () => {
     if (!confirmClear) {
       setConfirmClear(true)
@@ -117,6 +131,23 @@ export default function DataPage() {
             <span className="font-medium text-gray-700">{usageKB} KB</span>
           </div>
         </div>
+      </div>
+
+      {/* 예시 데이터 생성 */}
+      <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
+        <h2 className="text-sm font-semibold text-gray-700">예시 데이터 생성</h2>
+        <p className="text-xs text-gray-500">
+          소규모 서비스업 기준 약 3개월치 거래 38건을 추가합니다. 앱 기능을 빠르게 체험하거나
+          테스트할 때 사용하세요. 기존 데이터는 삭제되지 않습니다.
+        </p>
+        <button
+          type="button"
+          onClick={handleLoadSample}
+          className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 transition-colors"
+        >
+          <span>✨</span>
+          예시 데이터 생성
+        </button>
       </div>
 
       {/* JSON 내보내기 */}
