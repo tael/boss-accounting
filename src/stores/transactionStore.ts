@@ -21,11 +21,10 @@ interface TransactionState {
   addTransaction: (input: TransactionInput) => Transaction
   updateTransaction: (id: string, update: Partial<TransactionInput>) => boolean
   deleteTransaction: (id: string) => boolean
-  getAll: () => Transaction[]
-  getByDateRange: (dateFrom: string, dateTo: string) => Transaction[]
-  getByCategory: (categoryId: string) => Transaction[]
   getFiltered: (filter: TransactionFilter) => Transaction[]
   clearAll: () => void
+  importTransactions: (transactions: Transaction[]) => void
+  bulkAddTransactions: (inputs: TransactionInput[]) => void
 }
 
 /** UUID 생성 (crypto.randomUUID 사용) */
@@ -77,20 +76,6 @@ export const useTransactionStore = create<TransactionState>()(
         return true
       },
 
-      getAll: (): Transaction[] => {
-        return get().transactions
-      },
-
-      getByDateRange: (dateFrom: string, dateTo: string): Transaction[] => {
-        return get().transactions.filter(
-          (tx) => tx.date >= dateFrom && tx.date <= dateTo,
-        )
-      },
-
-      getByCategory: (categoryId: string): Transaction[] => {
-        return get().transactions.filter((tx) => tx.categoryId === categoryId)
-      },
-
       getFiltered: (filter: TransactionFilter): Transaction[] => {
         return get().transactions.filter((tx) => {
           if (filter.type && tx.type !== filter.type) return false
@@ -109,6 +94,21 @@ export const useTransactionStore = create<TransactionState>()(
 
       clearAll: (): void => {
         set({ transactions: [] })
+      },
+
+      importTransactions: (incoming: Transaction[]): void => {
+        set({ transactions: incoming })
+      },
+
+      bulkAddTransactions: (inputs: TransactionInput[]): void => {
+        const now = new Date().toISOString()
+        const newTxs: Transaction[] = inputs.map((input) => ({
+          id: generateId(),
+          ...input,
+          createdAt: now,
+          updatedAt: now,
+        }))
+        set((state) => ({ transactions: [...state.transactions, ...newTxs] }))
       },
     }),
     {

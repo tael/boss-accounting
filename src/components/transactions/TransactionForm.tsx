@@ -10,8 +10,6 @@ interface TransactionFormProps {
   onCancel?: () => void
 }
 
-const today = new Date().toISOString().slice(0, 10)
-
 export default function TransactionForm({
   initialData,
   onSuccess,
@@ -21,7 +19,7 @@ export default function TransactionForm({
   const isEdit = Boolean(initialData?.id)
 
   const [type, setType] = useState<TransactionType>(initialData?.type ?? 'income')
-  const [date, setDate] = useState(initialData?.date ?? today)
+  const [date, setDate] = useState(() => initialData?.date ?? new Date().toISOString().slice(0, 10))
   const [amountRaw, setAmountRaw] = useState(
     initialData?.amountKRW !== undefined ? String(initialData.amountKRW) : '',
   )

@@ -3,11 +3,13 @@
  * 부가세 및 종합소득세 신고 기간
  */
 
+export type TaxType = '부가세' | '종합소득세' | '원천세'
+
 export interface TaxScheduleItem {
   /** 고유 ID */
   id: string
   /** 세금 종류 */
-  taxType: '부가세' | '종합소득세' | '원천세'
+  taxType: TaxType
   /** 신고 제목 */
   title: string
   /** 신고 대상 기간 */
@@ -110,27 +112,16 @@ export function getScheduleByMonth(month: string): TaxScheduleItem[] {
 }
 
 /**
- * 다가오는 신고 일정 조회 (현재 월 기준 N개월 이내)
- * @param currentMonth YYYY-MM 형식
- * @param withinMonths 조회할 개월 수
+ * 다가오는 신고 일정 조회 (현재 월 및 다음 달 기준)
  */
-export function getUpcomingSchedule(
-  currentMonth: string,
-  withinMonths: number = 2,
-): TaxScheduleItem[] {
-  const [, month] = currentMonth.split('-').map(Number)
-  const results: TaxScheduleItem[] = []
-
-  for (let i = 0; i <= withinMonths; i++) {
-    const targetMonth = ((((month - 1 + i) % 12) + 12) % 12) + 1
-    const mm = String(targetMonth).padStart(2, '0')
-    const found = TAX_SCHEDULE.filter((item) => item.periodEnd.startsWith(mm))
-    results.push(...found)
-  }
-
-  // 중복 제거
+export function getUpcomingSchedule(): typeof TAX_SCHEDULE {
+  const now = new Date()
+  const currentMM = String(now.getMonth() + 1).padStart(2, '0')
+  const nextMM = String(((now.getMonth() + 1) % 12) + 1).padStart(2, '0')
   const seen = new Set<string>()
-  return results.filter((item) => {
+  return TAX_SCHEDULE.filter(
+    (item) => item.periodEnd.startsWith(currentMM) || item.periodEnd.startsWith(nextMM),
+  ).filter((item) => {
     if (seen.has(item.id)) return false
     seen.add(item.id)
     return true

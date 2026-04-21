@@ -9,28 +9,52 @@ const BACKUP_FILENAME = 'backup.json'
 
 /** GIS 스크립트가 로드될 때까지 대기 */
 export function waitForGoogleIdentityServices(): Promise<void> {
+  // 이미 로드된 경우 즉시 resolve
+  if (window.google?.accounts?.oauth2) {
+    return Promise.resolve()
+  }
+
   return new Promise((resolve, reject) => {
-    if (window.google?.accounts?.oauth2) {
-      resolve()
-      return
+    // 기존 스크립트 태그를 찾아 onload에 연결
+    const existingScript = document.querySelector<HTMLScriptElement>(
+      'script[src*="accounts.google.com/gsi/client"]'
+    )
+
+    const onLoad = () => {
+      if (window.google?.accounts?.oauth2) {
+        resolve()
+      } else {
+        reject(new Error('Google Identity Services 로드 실패'))
+      }
     }
 
-    const maxWaitMs = 10_000
-    const intervalMs = 100
-    let elapsed = 0
+    if (existingScript) {
+      if (existingScript.dataset['loaded']) {
+        onLoad()
+      } else {
+        existingScript.addEventListener('load', onLoad)
+        existingScript.addEventListener('error', () =>
+          reject(new Error('GIS 스크립트 로드 오류'))
+        )
+      }
+    } else {
+      // 스크립트가 없으면 직접 삽입
+      const script = document.createElement('script')
+      script.src = 'https://accounts.google.com/gsi/client'
+      script.async = true
+      script.defer = true
+      script.addEventListener('load', () => {
+        script.dataset['loaded'] = 'true'
+        onLoad()
+      })
+      script.addEventListener('error', () =>
+        reject(new Error('GIS 스크립트 로드 오류'))
+      )
+      document.head.appendChild(script)
+    }
 
-    const timer = setInterval(() => {
-      elapsed += intervalMs
-      if (window.google?.accounts?.oauth2) {
-        clearInterval(timer)
-        resolve()
-        return
-      }
-      if (elapsed >= maxWaitMs) {
-        clearInterval(timer)
-        reject(new Error('Google Identity Services 스크립트 로드 시간이 초과되었습니다.'))
-      }
-    }, intervalMs)
+    // 10초 타임아웃
+    setTimeout(() => reject(new Error('GIS 로드 타임아웃 (10초)')), 10_000)
   })
 }
 

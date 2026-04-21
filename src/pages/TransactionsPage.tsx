@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useTransactionStore } from '@/stores/transactionStore'
 import TransactionFilter from '@/components/transactions/TransactionFilter'
 import TransactionList from '@/components/transactions/TransactionList'
@@ -13,12 +13,15 @@ export default function TransactionsPage() {
 
   const filtered = getFiltered(filter)
 
-  const totalIncome = filtered
-    .filter((tx) => tx.type === 'income')
-    .reduce((sum, tx) => sum + tx.amountKRW, 0)
-  const totalExpense = filtered
-    .filter((tx) => tx.type === 'expense')
-    .reduce((sum, tx) => sum + tx.amountKRW, 0)
+  const { totalIncome, totalExpense } = useMemo(() => {
+    let income = 0
+    let expense = 0
+    for (const tx of filtered) {
+      if (tx.type === 'income') income += tx.amountKRW
+      else expense += tx.amountKRW
+    }
+    return { totalIncome: income, totalExpense: expense }
+  }, [filtered])
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">

@@ -18,7 +18,7 @@ function getLocalStorageUsageKB(): number {
 }
 
 export default function DataPage() {
-  const { transactions, clearAll } = useTransactionStore()
+  const { transactions, clearAll, importTransactions, bulkAddTransactions } = useTransactionStore()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [importing, setImporting] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
@@ -64,13 +64,7 @@ export default function DataPage() {
         return
       }
 
-      clearAll()
-      for (const tx of result.transactions ?? []) {
-        // id, createdAt, updatedAt을 보존하여 직접 set하는 대신 스토어 액션 우회
-        useTransactionStore.setState((state) => ({
-          transactions: [...state.transactions, tx],
-        }))
-      }
+      importTransactions(result.transactions ?? [])
       showMessage('success', `${result.transactionCount}건의 거래를 성공적으로 가져왔습니다.`)
     } finally {
       setImporting(false)
@@ -84,9 +78,7 @@ export default function DataPage() {
     if (!confirmed) return
 
     const samples = buildSampleTransactions()
-    for (const tx of samples) {
-      useTransactionStore.getState().addTransaction(tx)
-    }
+    bulkAddTransactions(samples)
     showMessage('success', `예시 데이터 ${samples.length}건을 추가했습니다.`)
   }
 

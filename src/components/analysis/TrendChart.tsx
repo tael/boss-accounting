@@ -10,18 +10,8 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { useTransactionStore } from '@/stores/transactionStore'
-import { calculateCashFlow } from '@/utils/financial'
+import { calculateCashFlow, getLastNMonths } from '@/utils/financial'
 import { formatKRW } from '@/utils/format'
-
-function getLast12Months(): string[] {
-  const months: string[] = []
-  const now = new Date()
-  for (let i = 11; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-    months.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`)
-  }
-  return months
-}
 
 function shortMonth(ym: string): string {
   const [, m] = ym.split('-')
@@ -32,7 +22,7 @@ export default function TrendChart() {
   const transactions = useTransactionStore((s) => s.transactions)
 
   const chartData = useMemo(() => {
-    const last12 = getLast12Months()
+    const last12 = getLastNMonths(12)
     const cashFlowMap = new Map(
       calculateCashFlow(transactions).map((entry) => [entry.month, entry]),
     )

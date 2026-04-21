@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { calculateVAT, SIMPLIFIED_VAT_RATE_LABELS } from '@/utils/tax'
 import { formatKRW, parseKRW } from '@/utils/format'
+import { filterByQuarter, summarizeForVat } from '@/utils/financial'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { useTransactionStore } from '@/stores/transactionStore'
 
@@ -21,20 +22,11 @@ export default function VatCalculator() {
   /** 이번 분기 매출/적격증빙 비용 자동 불러오기 */
   const handleLoadFromTransactions = () => {
     const now = new Date()
-    const quarter = Math.floor(now.getMonth() / 3)
     const year = now.getFullYear()
-    const dateFrom = `${year}-${String(quarter * 3 + 1).padStart(2, '0')}-01`
-    const lastMonth = quarter * 3 + 3
-    const lastDay = new Date(year, lastMonth, 0).getDate()
-    const dateTo = `${year}-${String(lastMonth).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
-
-    const txs = getFiltered({ dateFrom, dateTo })
-    const totalRevenue = txs
-      .filter((tx) => tx.type === 'income')
-      .reduce((sum, tx) => sum + tx.amountKRW, 0)
-    const totalDeductible = txs
-      .filter((tx) => tx.type === 'expense' && tx.isVatDeductible !== false)
-      .reduce((sum, tx) => sum + tx.amountKRW, 0)
+    const quarter = Math.floor(now.getMonth() / 3) + 1
+    const allTxs = getFiltered({})
+    const txs = filterByQuarter(allTxs, year, quarter)
+    const { totalRevenue, totalDeductible } = summarizeForVat(txs)
 
     if (isSimplified) {
       setSimplifiedRevenue(String(totalRevenue))

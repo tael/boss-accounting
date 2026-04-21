@@ -131,6 +131,40 @@ export function filterByDateRange(
 }
 
 /**
+ * 특정 연도/분기의 거래 필터링
+ * @param quarter 1-4
+ */
+export function filterByQuarter(
+  transactions: Transaction[],
+  year: number,
+  quarter: number,
+): Transaction[] {
+  const startMonth = (quarter - 1) * 3 + 1
+  const endMonth = startMonth + 2
+  const from = `${year}-${String(startMonth).padStart(2, '0')}-01`
+  const to = `${year}-${String(endMonth).padStart(2, '0')}-31`
+  return transactions.filter((tx) => tx.date >= from && tx.date <= to)
+}
+
+export interface VatSummary {
+  totalRevenue: number
+  totalDeductible: number
+}
+
+/**
+ * 거래 목록에서 부가세 계산용 매출/적격증빙 비용 합산
+ */
+export function summarizeForVat(transactions: Transaction[]): VatSummary {
+  const totalRevenue = transactions
+    .filter((tx) => tx.type === 'income')
+    .reduce((sum, tx) => sum + tx.amountKRW, 0)
+  const totalDeductible = transactions
+    .filter((tx) => tx.type === 'expense' && tx.isVatDeductible !== false)
+    .reduce((sum, tx) => sum + tx.amountKRW, 0)
+  return { totalRevenue, totalDeductible }
+}
+
+/**
  * 변화율 계산 (전기 대비)
  * @returns 변화율 (%). 전기값이 0이면 0 반환
  */
@@ -213,6 +247,19 @@ export function generateInsights(transactions: Transaction[]): FinancialInsight[
   }
 
   return insights.sort((a, b) => b.priority - a.priority)
+}
+
+/**
+ * 현재 월 포함 최근 N개월 YYYY-MM 배열 반환 (오름차순)
+ */
+export function getLastNMonths(n: number = 12): string[] {
+  const months: string[] = []
+  const now = new Date()
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    months.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`)
+  }
+  return months
 }
 
 export interface CostStructure {

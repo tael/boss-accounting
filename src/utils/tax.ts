@@ -33,12 +33,6 @@ export interface IncomeTaxResult {
   appliedRatePct: number
   /** 적용 연도 */
   taxYear: number
-  /** (별칭) 과세표준 */
-  taxBase: number
-  /** (별칭) 산출세액 */
-  tax: number
-  /** (별칭) 적용 세율 */
-  effectiveRate: number
   /** 공제 전 산출세액 (원). 소득공제 미적용 기준 */
   taxBeforeDeductionKRW: number
 }
@@ -189,9 +183,6 @@ export function calculateIncomeTax(
       calculatedTaxKRW: 0,
       appliedRatePct: 0,
       taxYear: rates.year,
-      taxBase: 0,
-      tax: 0,
-      effectiveRate: 0,
       taxBeforeDeductionKRW: taxBeforeDeduction,
     }
   }
@@ -211,9 +202,6 @@ export function calculateIncomeTax(
       calculatedTaxKRW: 0,
       appliedRatePct: 0,
       taxYear: rates.year,
-      taxBase,
-      tax: 0,
-      effectiveRate: 0,
       taxBeforeDeductionKRW: taxBeforeDeduction,
     }
   }
@@ -230,11 +218,30 @@ export function calculateIncomeTax(
     calculatedTaxKRW: finalTax,
     appliedRatePct: finalRate,
     taxYear: rates.year,
-    taxBase,
-    tax: finalTax,
-    effectiveRate: finalRate,
     taxBeforeDeductionKRW: taxBeforeDeduction,
   }
+}
+
+/**
+ * 노란우산공제 절세 효과 계산
+ * 노란우산 공제 미적용 시 세액 vs 적용 시 세액의 차이를 반환
+ *
+ * @param result calculateIncomeTax 결과 (공제 포함)
+ * @param deductions 현재 공제 정보
+ * @returns 절세액 (원). 노란우산 미적용이거나 공제 0이면 0 반환
+ */
+export function calculateYellowUmbrellaSaving(
+  result: IncomeTaxResult,
+  deductions: Partial<TaxDeductions>,
+): number {
+  const yellowUmbrellaApplied = Math.min(deductions.yellowUmbrella ?? 0, 5_000_000)
+  if (yellowUmbrellaApplied <= 0) return 0
+
+  const resultWithoutYellow = calculateIncomeTax(
+    result.taxableIncomeKRW + yellowUmbrellaApplied,
+    { ...deductions, yellowUmbrella: 0 },
+  )
+  return resultWithoutYellow.calculatedTaxKRW - result.calculatedTaxKRW
 }
 
 /**

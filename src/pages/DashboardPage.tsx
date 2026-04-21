@@ -2,30 +2,13 @@ import { useMemo } from 'react'
 import { useTransactionStore } from '@/stores/transactionStore'
 import MonthSummary from '@/components/dashboard/MonthSummary'
 import InsightCard from '@/components/dashboard/InsightCard'
-import { TAX_SCHEDULE } from '@/constants/taxSchedule'
+import { getUpcomingSchedule } from '@/constants/taxSchedule'
+import type { TaxType } from '@/constants/taxSchedule'
 import { BOOK_REFERENCES } from '@/constants/bookReferences'
+import { formatKRW } from '@/utils/format'
 
-function getUpcoming(): typeof TAX_SCHEDULE {
-  const now = new Date()
-  const currentMM = String(now.getMonth() + 1).padStart(2, '0')
-  const nextMM = String(((now.getMonth() + 1) % 12) + 1).padStart(2, '0')
-  const seen = new Set<string>()
-  const results = TAX_SCHEDULE.filter(
-    (item) =>
-      item.periodEnd.startsWith(currentMM) || item.periodEnd.startsWith(nextMM),
-  ).filter((item) => {
-    if (seen.has(item.id)) return false
-    seen.add(item.id)
-    return true
-  })
-  return results
-}
 
-function formatAmount(n: number): string {
-  return `₩${Math.round(n).toLocaleString('ko-KR')}`
-}
-
-const TYPE_LABEL: Record<string, string> = {
+const TYPE_LABEL: Record<TaxType, string> = {
   부가세: 'text-blue-600 bg-blue-100',
   종합소득세: 'text-purple-600 bg-purple-100',
   원천세: 'text-orange-600 bg-orange-100',
@@ -40,7 +23,7 @@ export default function DashboardPage() {
       .slice(0, 5)
   }, [transactions])
 
-  const upcomingSchedule = useMemo(() => getUpcoming(), [])
+  const upcomingSchedule = useMemo(() => getUpcomingSchedule(), [])
   const taxRef = BOOK_REFERENCES['dashboard.taxSchedule']
 
   return (
@@ -112,7 +95,7 @@ export default function DashboardPage() {
                   }`}
                 >
                   {tx.type === 'income' ? '+' : '-'}
-                  {formatAmount(tx.amountKRW)}
+                  {formatKRW(tx.amountKRW)}
                 </span>
               </div>
             ))}

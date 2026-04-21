@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useTransactionStore } from '@/stores/transactionStore'
-import { calculateIncomeTax } from '@/utils/tax'
+import { calculateIncomeTax, calculateYellowUmbrellaSaving } from '@/utils/tax'
 import type { TaxDeductions } from '@/utils/tax'
 import { formatKRW, parseKRW } from '@/utils/format'
 import { CURRENT_TAX_RATES } from '@/constants/taxRates'
@@ -36,17 +36,9 @@ export default function IncomeTaxCalc() {
   const brackets = CURRENT_TAX_RATES.incomeTaxBrackets
 
   const yellowUmbrellaApplied = Math.min(deductions.yellowUmbrella, 5_000_000)
-  // 노란우산공제만의 절세 효과: 노란우산 제외 시 세액 vs 포함 시 세액 차이
-  const resultWithoutYellow = result
-    ? calculateIncomeTax(result.taxableIncomeKRW + yellowUmbrellaApplied, {
-        ...deductions,
-        yellowUmbrella: 0,
-      })
-    : null
-  const yellowUmbrellaSaving =
-    result && resultWithoutYellow && deductions.yellowUmbrella > 0
-      ? resultWithoutYellow.calculatedTaxKRW - result.calculatedTaxKRW
-      : 0
+  const yellowUmbrellaSaving = result
+    ? calculateYellowUmbrellaSaving(result, deductions)
+    : 0
 
   function handleDeductionChange(field: keyof TaxDeductions, value: string) {
     const num = parseInt(value.replace(/,/g, ''), 10)
