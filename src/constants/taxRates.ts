@@ -96,3 +96,11 @@ export const CURRENT_TAX_RATES = TAX_RATES_2025
 /** 세금 면책 문구 */
 export const TAX_DISCLAIMER =
   `본 계산은 ${CURRENT_TAX_RATES.year}년 세율 기준 참고용이며, 실제 세금 신고 시 세무사 상담을 권장합니다.`
+
+/** 종합소득세 소득공제 상수 (2025년 기준) */
+export const TAX_DEDUCTION_CONSTANTS = {
+  /** 부양가족 1인당 기본공제 (원) */
+  PERSONAL_DEDUCTION_PER_DEPENDENT: 1_500_000,
+  /** 노란우산공제 연간 납입 한도 (원) */
+  YELLOW_UMBRELLA_MAX: 5_000_000,
+} as const

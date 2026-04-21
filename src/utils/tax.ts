@@ -3,7 +3,7 @@
  * 모든 금액은 정수 원(KRW) 단위로 처리
  */
 
-import { CURRENT_TAX_RATES } from '@/constants/taxRates'
+import { CURRENT_TAX_RATES, TAX_DEDUCTION_CONSTANTS } from '@/constants/taxRates'
 import type { TaxRates } from '@/constants/taxRates'
 
 export interface VATResult {
@@ -154,9 +154,9 @@ export function calculateIncomeTax(
 ): IncomeTaxResult {
   // 1. 소득공제 계산
   const depCount = deductions?.dependents ?? 0  // deductions 미전달 시 공제 없음
-  const personalDeduction = depCount * 1_500_000
+  const personalDeduction = depCount * TAX_DEDUCTION_CONSTANTS.PERSONAL_DEDUCTION_PER_DEPENDENT
   const pension = deductions?.nationalPension ?? 0
-  const yellowUmbrella = Math.min(deductions?.yellowUmbrella ?? 0, 5_000_000)
+  const yellowUmbrella = Math.min(deductions?.yellowUmbrella ?? 0, TAX_DEDUCTION_CONSTANTS.YELLOW_UMBRELLA_MAX)
 
   // 2. 공제 전 과세표준 (기본공제만 미적용 기준으로 세액 비교용)
   const taxBaseBeforeDeduction = Math.max(0, incomeKRW)
@@ -234,7 +234,7 @@ export function calculateYellowUmbrellaSaving(
   result: IncomeTaxResult,
   deductions: Partial<TaxDeductions>,
 ): number {
-  const yellowUmbrellaApplied = Math.min(deductions.yellowUmbrella ?? 0, 5_000_000)
+  const yellowUmbrellaApplied = Math.min(deductions.yellowUmbrella ?? 0, TAX_DEDUCTION_CONSTANTS.YELLOW_UMBRELLA_MAX)
   if (yellowUmbrellaApplied <= 0) return 0
 
   const resultWithoutYellow = calculateIncomeTax(

@@ -34,6 +34,7 @@ export function OnboardingModal({ isOpen }: OnboardingModalProps) {
           <div className="grid grid-cols-1 gap-3">
             <button
               onClick={() => handleTaxTypeSelect('general')}
+              aria-pressed={false}
               className="flex flex-col items-start gap-1 p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-colors text-left"
             >
               <span className="font-semibold text-gray-800">일반과세자</span>
@@ -41,6 +42,7 @@ export function OnboardingModal({ isOpen }: OnboardingModalProps) {
             </button>
             <button
               onClick={() => handleTaxTypeSelect('simplified')}
+              aria-pressed={false}
               className="flex flex-col items-start gap-1 p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-colors text-left"
             >
               <span className="font-semibold text-gray-800">간이과세자</span>
@@ -64,6 +66,7 @@ export function OnboardingModal({ isOpen }: OnboardingModalProps) {
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => handleHasEmployeesSelect(true)}
+              aria-pressed={false}
               className="flex flex-col items-center gap-1 p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-colors"
             >
               <span className="font-semibold text-gray-800">예</span>
@@ -71,6 +74,7 @@ export function OnboardingModal({ isOpen }: OnboardingModalProps) {
             </button>
             <button
               onClick={() => handleHasEmployeesSelect(false)}
+              aria-pressed={false}
               className="flex flex-col items-center gap-1 p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-colors"
             >
               <span className="font-semibold text-gray-800">아니오</span>

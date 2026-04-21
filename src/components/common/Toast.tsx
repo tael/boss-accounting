@@ -85,11 +85,17 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('storage-error', handleStorageError)
   }, [showToast])
 
+  const hasError = toasts.some((t) => t.type === 'error')
+
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
       {createPortal(
-        <div className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2">
+        <div
+          className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2"
+          role={hasError ? 'alert' : 'status'}
+          aria-live={hasError ? 'assertive' : 'polite'}
+        >
           {toasts.map((t) => (
             <ToastItem key={t.id} item={t} onRemove={removeToast} />
           ))}

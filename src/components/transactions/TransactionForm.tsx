@@ -78,6 +78,7 @@ export default function TransactionForm({
           <button
             type="button"
             onClick={() => handleTypeChange('income')}
+            aria-pressed={type === 'income'}
             className={[
               'flex-1 py-2 text-sm font-medium transition-colors',
               type === 'income'
@@ -90,6 +91,7 @@ export default function TransactionForm({
           <button
             type="button"
             onClick={() => handleTypeChange('expense')}
+            aria-pressed={type === 'expense'}
             className={[
               'flex-1 py-2 text-sm font-medium transition-colors',
               type === 'expense'

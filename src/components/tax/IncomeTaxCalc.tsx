@@ -3,7 +3,7 @@ import { useTransactionStore } from '@/stores/transactionStore'
 import { calculateIncomeTax, calculateYellowUmbrellaSaving } from '@/utils/tax'
 import type { TaxDeductions } from '@/utils/tax'
 import { formatKRW, parseKRW } from '@/utils/format'
-import { CURRENT_TAX_RATES } from '@/constants/taxRates'
+import { CURRENT_TAX_RATES, TAX_DEDUCTION_CONSTANTS } from '@/constants/taxRates'
 
 export default function IncomeTaxCalc() {
   const [mode, setMode] = useState<'manual' | 'auto'>('manual')
@@ -35,7 +35,7 @@ export default function IncomeTaxCalc() {
 
   const brackets = CURRENT_TAX_RATES.incomeTaxBrackets
 
-  const yellowUmbrellaApplied = Math.min(deductions.yellowUmbrella, 5_000_000)
+  const yellowUmbrellaApplied = Math.min(deductions.yellowUmbrella, TAX_DEDUCTION_CONSTANTS.YELLOW_UMBRELLA_MAX)
   const yellowUmbrellaSaving = result
     ? calculateYellowUmbrellaSaving(result, deductions)
     : 0
@@ -118,7 +118,7 @@ export default function IncomeTaxCalc() {
                 className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <p className="text-xs text-gray-400 mt-0.5">
-                1인당 150만원 공제 (본인 포함 {deductions.dependents}명 = {formatKRW(deductions.dependents * 1_500_000)})
+                1인당 150만원 공제 (본인 포함 {deductions.dependents}명 = {formatKRW(deductions.dependents * TAX_DEDUCTION_CONSTANTS.PERSONAL_DEDUCTION_PER_DEPENDENT)})
               </p>
             </div>
 
