@@ -6,7 +6,7 @@
 
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import type { Transaction, TransactionInput, TransactionFilter } from '@/types/transaction'
+import type { Transaction, TransactionInput } from '@/types/transaction'
 import { localStorageAdapter } from '@/utils/storage'
 import { validateTransactions } from '@/utils/exportImport'
 
@@ -22,7 +22,6 @@ interface TransactionState {
   addTransaction: (input: TransactionInput) => Transaction
   updateTransaction: (id: string, update: Partial<TransactionInput>) => boolean
   deleteTransaction: (id: string) => boolean
-  getFiltered: (filter: TransactionFilter) => Transaction[]
   clearAll: () => void
   importTransactions: (transactions: Transaction[]) => void
   bulkAddTransactions: (inputs: TransactionInput[]) => void
@@ -82,22 +81,6 @@ export const useTransactionStore = create<TransactionState>()(
           transactions: state.transactions.filter((tx) => tx.id !== id),
         }))
         return true
-      },
-
-      getFiltered: (filter: TransactionFilter): Transaction[] => {
-        return get().transactions.filter((tx) => {
-          if (filter.type && tx.type !== filter.type) return false
-          if (filter.categoryId && tx.categoryId !== filter.categoryId) return false
-          if (filter.dateFrom && tx.date < filter.dateFrom) return false
-          if (filter.dateTo && tx.date > filter.dateTo) return false
-          if (filter.amountMin !== undefined && tx.amountKRW < filter.amountMin) return false
-          if (filter.amountMax !== undefined && tx.amountKRW > filter.amountMax) return false
-          if (filter.memoSearch) {
-            const keyword = filter.memoSearch.toLowerCase()
-            if (!tx.memo?.toLowerCase().includes(keyword)) return false
-          }
-          return true
-        })
       },
 
       clearAll: (): void => {

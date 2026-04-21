@@ -142,7 +142,7 @@ export default function GoogleDriveBackup() {
         return
       }
 
-      useTransactionStore.setState({ transactions: result.transactions ?? [] })
+      useTransactionStore.getState().importTransactions(result.transactions ?? [])
       showMessage('success', `${result.transactionCount}건의 거래 데이터를 복원했습니다.`)
     } catch (err) {
       showMessage('error', err instanceof Error ? err.message : '복원에 실패했습니다.')

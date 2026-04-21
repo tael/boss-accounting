@@ -4,14 +4,15 @@ import TransactionFilter from '@/components/transactions/TransactionFilter'
 import TransactionList from '@/components/transactions/TransactionList'
 import TransactionForm from '@/components/transactions/TransactionForm'
 import BookReference from '@/components/transactions/BookReference'
+import { filterTransactions } from '@/utils/financial'
 import type { TransactionFilter as FilterState } from '@/types/transaction'
 
 export default function TransactionsPage() {
-  const { getFiltered, transactions } = useTransactionStore()
+  const { transactions } = useTransactionStore()
   const [filter, setFilter] = useState<FilterState>({})
   const [showForm, setShowForm] = useState(false)
 
-  const filtered = useMemo(() => getFiltered(filter), [filter, transactions])
+  const filtered = useMemo(() => filterTransactions(transactions, filter), [filter, transactions])
 
   const { totalIncome, totalExpense } = useMemo(() => {
     let income = 0

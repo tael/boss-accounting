@@ -3,7 +3,7 @@
  * 모든 금액은 정수 원(KRW) 단위로 처리
  */
 
-import type { Transaction } from '@/types/transaction'
+import type { Transaction, TransactionFilter } from '@/types/transaction'
 import type { CategorySummary, IncomeStatement, CashFlowEntry } from '@/types/financial'
 import { getCategoryName, EXPENSE_CATEGORIES } from '@/constants/categories'
 import type { BookReferenceKey } from '@/constants/bookReferences'
@@ -259,6 +259,28 @@ export function generateInsights(transactions: Transaction[]): FinancialInsight[
   }
 
   return insights.sort((a, b) => b.priority - a.priority)
+}
+
+/**
+ * 필터 조건으로 거래 목록 필터링 (derived state helper)
+ */
+export function filterTransactions(
+  transactions: Transaction[],
+  filter: TransactionFilter,
+): Transaction[] {
+  return transactions.filter((tx) => {
+    if (filter.type && tx.type !== filter.type) return false
+    if (filter.categoryId && tx.categoryId !== filter.categoryId) return false
+    if (filter.dateFrom && tx.date < filter.dateFrom) return false
+    if (filter.dateTo && tx.date > filter.dateTo) return false
+    if (filter.amountMin !== undefined && tx.amountKRW < filter.amountMin) return false
+    if (filter.amountMax !== undefined && tx.amountKRW > filter.amountMax) return false
+    if (filter.memoSearch) {
+      const keyword = filter.memoSearch.toLowerCase()
+      if (!tx.memo?.toLowerCase().includes(keyword)) return false
+    }
+    return true
+  })
 }
 
 /**
