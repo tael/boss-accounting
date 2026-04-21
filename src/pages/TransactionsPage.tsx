@@ -7,11 +7,11 @@ import BookReference from '@/components/transactions/BookReference'
 import type { TransactionFilter as FilterState } from '@/types/transaction'
 
 export default function TransactionsPage() {
-  const { getFiltered } = useTransactionStore()
+  const { getFiltered, transactions } = useTransactionStore()
   const [filter, setFilter] = useState<FilterState>({})
   const [showForm, setShowForm] = useState(false)
 
-  const filtered = getFiltered(filter)
+  const filtered = useMemo(() => getFiltered(filter), [filter, transactions])
 
   const { totalIncome, totalExpense } = useMemo(() => {
     let income = 0

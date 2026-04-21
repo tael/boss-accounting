@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useTransactionStore } from '@/stores/transactionStore'
 import { getCategoryName } from '@/constants/categories'
 import { formatKRW, formatDateKo } from '@/utils/format'
@@ -14,6 +14,11 @@ export default function TransactionList({ transactions }: TransactionListProps) 
   const [editingId, setEditingId] = useState<string | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
 
+  const sorted = useMemo(
+    () => [...transactions].sort((a, b) => b.date.localeCompare(a.date)),
+    [transactions],
+  )
+
   if (transactions.length === 0) {
     return (
       <div className="text-center py-16 text-gray-400">
@@ -23,8 +28,6 @@ export default function TransactionList({ transactions }: TransactionListProps) 
       </div>
     )
   }
-
-  const sorted = [...transactions].sort((a, b) => b.date.localeCompare(a.date))
 
   const handleDelete = (id: string) => {
     deleteTransaction(id)

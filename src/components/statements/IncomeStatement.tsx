@@ -4,6 +4,7 @@ import {
   calculateIncomeStatement,
   filterByMonth,
   filterByDateRange,
+  getQuarterDateRange,
 } from '@/utils/financial'
 import { formatKRW, formatMargin } from '@/utils/format'
 import type { IncomeStatement as IIncomeStatement } from '@/types/financial'
@@ -13,15 +14,6 @@ type PeriodType = 'month' | 'quarter' | 'year'
 function getCurrentYearMonth(): string {
   const now = new Date()
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
-}
-
-function getQuarterRange(year: number, quarter: number): { from: string; to: string } {
-  const startMonth = (quarter - 1) * 3 + 1
-  const endMonth = startMonth + 2
-  const from = `${year}-${String(startMonth).padStart(2, '0')}-01`
-  const endDate = new Date(year, endMonth, 0)
-  const to = `${year}-${String(endMonth).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`
-  return { from, to }
 }
 
 function getCurrentQuarter(): number {
@@ -44,7 +36,7 @@ export default function IncomeStatement() {
 
     if (periodType === 'quarter') {
       const q = getCurrentQuarter()
-      const { from, to } = getQuarterRange(year, q)
+      const { from, to } = getQuarterDateRange(year, q)
       const txs = filterByDateRange(transactions, from, to)
       return calculateIncomeStatement(txs, `${year}-Q${q}`)
     }

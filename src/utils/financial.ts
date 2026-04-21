@@ -131,6 +131,21 @@ export function filterByDateRange(
 }
 
 /**
+ * 연도/분기의 시작·끝 날짜 반환
+ * @param year 연도
+ * @param quarter 1-4
+ * @returns { from: 'YYYY-MM-DD', to: 'YYYY-MM-DD' }
+ */
+export function getQuarterDateRange(year: number, quarter: number): { from: string; to: string } {
+  const startMonth = (quarter - 1) * 3 + 1
+  const endMonth = startMonth + 2
+  const from = `${year}-${String(startMonth).padStart(2, '0')}-01`
+  const endDate = new Date(year, endMonth, 0)
+  const to = `${year}-${String(endMonth).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`
+  return { from, to }
+}
+
+/**
  * 특정 연도/분기의 거래 필터링
  * @param quarter 1-4
  */
@@ -139,10 +154,7 @@ export function filterByQuarter(
   year: number,
   quarter: number,
 ): Transaction[] {
-  const startMonth = (quarter - 1) * 3 + 1
-  const endMonth = startMonth + 2
-  const from = `${year}-${String(startMonth).padStart(2, '0')}-01`
-  const to = `${year}-${String(endMonth).padStart(2, '0')}-31`
+  const { from, to } = getQuarterDateRange(year, quarter)
   return transactions.filter((tx) => tx.date >= from && tx.date <= to)
 }
 

@@ -8,6 +8,7 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { Transaction, TransactionInput, TransactionFilter } from '@/types/transaction'
 import { localStorageAdapter } from '@/utils/storage'
+import { validateTransactions } from '@/utils/exportImport'
 
 /** Store 스키마 버전 */
 const STORE_VERSION = 1
@@ -123,13 +124,17 @@ export const useTransactionStore = create<TransactionState>()(
       storage: createJSONStorage(() => localStorageAdapter),
       version: STORE_VERSION,
       migrate: (persistedState, version) => {
-        // 버전별 마이그레이션 로직
+        const state = persistedState as { transactions?: unknown[] }
+        // 손상된 거래 항목 필터링
+        if (Array.isArray(state?.transactions)) {
+          state.transactions = validateTransactions(state.transactions)
+        }
         switch (version) {
           case 0:
             // v0 → v1: 향후 필드 추가 시 여기에 마이그레이션 작성
-            return persistedState
+            return state
           default:
-            return persistedState
+            return state
         }
       },
       onRehydrateStorage: () => {

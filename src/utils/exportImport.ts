@@ -159,7 +159,7 @@ function isExportData(data: unknown): data is ExportData {
 }
 
 /** 거래 데이터 기본 검증 (손상된 항목 제거) */
-function validateTransactions(raw: unknown[]): Transaction[] {
+export function validateTransactions(raw: unknown[]): Transaction[] {
   return raw.filter((item): item is Transaction => {
     if (typeof item !== 'object' || item === null) return false
     const tx = item as Record<string, unknown>
