@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react'
-import { calculateLaborCost } from '@/utils/tax'
+import { calculateLaborCost, calculateTrueLaborCost } from '@/utils/tax'
 import { formatKRW, parseKRW } from '@/utils/format'
 import { useTransactionStore } from '@/stores/transactionStore'
 
 export default function LaborCalc() {
   const [hourlyWageInput, setHourlyWageInput] = useState('')
   const [weeklyHours, setWeeklyHours] = useState(40)
+  const [includeInsurance, setIncludeInsurance] = useState(false)
   const addTransaction = useTransactionStore((s) => s.addTransaction)
   const [registered, setRegistered] = useState(false)
 
@@ -13,18 +14,24 @@ export default function LaborCalc() {
 
   const result = useMemo(() => {
     if (hourlyWage <= 0 || weeklyHours <= 0) return null
-    return calculateLaborCost(hourlyWage, weeklyHours)
-  }, [hourlyWage, weeklyHours])
+    return includeInsurance
+      ? calculateTrueLaborCost(hourlyWage, weeklyHours)
+      : calculateLaborCost(hourlyWage, weeklyHours)
+  }, [hourlyWage, weeklyHours, includeInsurance])
+
+  const trueResult = includeInsurance && result && 'trueMonthlyCost' in result ? result : null
 
   function handleRegister() {
     if (!result) return
     const today = new Date().toISOString().slice(0, 10)
+    const amount = trueResult ? trueResult.trueMonthlyCost : result.totalMonthlyPay
+    const memoSuffix = trueResult ? ', 4대보험 포함' : ''
     addTransaction({
       type: 'expense',
       date: today,
-      amountKRW: result.totalMonthlyPay,
+      amountKRW: amount,
       categoryId: 'expense-labor',
-      memo: `알바 인건비 (시급 ${formatKRW(hourlyWage)}, 주${weeklyHours}시간)`,
+      memo: `알바 인건비 (시급 ${formatKRW(hourlyWage)}, 주${weeklyHours}시간${memoSuffix})`,
       isVatDeductible: false,
     })
     setRegistered(true)
@@ -60,6 +67,25 @@ export default function LaborCalc() {
             className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
+
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-gray-600">4대 보험 포함</span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={includeInsurance}
+            onClick={() => setIncludeInsurance((v) => !v)}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              includeInsurance ? 'bg-blue-600' : 'bg-gray-200'
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                includeInsurance ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
+        </div>
       </div>
 
       {result ? (
@@ -90,6 +116,38 @@ export default function LaborCalc() {
               <span className="text-base font-bold text-blue-600">{formatKRW(result.totalMonthlyPay)}</span>
             </div>
             <p className="text-xs text-gray-400">월 환산 = 주 합계 × 4.345주</p>
+
+            {trueResult && (
+              <>
+                <div className="pt-3 border-t border-gray-200 space-y-1.5">
+                  <p className="text-xs font-semibold text-gray-500 mb-1">사업주 부담 4대 보험 (월)</p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-500">국민연금 (4.5%)</span>
+                    <span className="text-xs text-gray-700">{formatKRW(trueResult.nationalPension)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-500">건강보험 (3.545%)</span>
+                    <span className="text-xs text-gray-700">{formatKRW(trueResult.healthInsurance)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-500">고용보험 (0.9%)</span>
+                    <span className="text-xs text-gray-700">{formatKRW(trueResult.employmentInsurance)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-500">산재보험 (1.8%)</span>
+                    <span className="text-xs text-gray-700">{formatKRW(trueResult.industrialAccident)}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-1 border-t border-gray-100">
+                    <span className="text-xs font-semibold text-gray-600">보험 합계</span>
+                    <span className="text-xs font-semibold text-gray-700">{formatKRW(trueResult.totalInsurance)}</span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center pt-2 border-t border-blue-100 bg-blue-50 -mx-4 px-4 py-2 rounded-b-lg">
+                  <span className="text-sm font-bold text-blue-800">실질 월 총 인건비</span>
+                  <span className="text-base font-bold text-blue-700">{formatKRW(trueResult.trueMonthlyCost)}</span>
+                </div>
+              </>
+            )}
           </div>
 
           <button
@@ -101,7 +159,11 @@ export default function LaborCalc() {
                 : 'bg-blue-600 text-white hover:bg-blue-700'
             }`}
           >
-            {registered ? '거래 등록 완료!' : '거래로 등록 (월 환산 인건비)'}
+            {registered
+              ? '거래 등록 완료!'
+              : trueResult
+                ? '거래로 등록 (실질 월 총 인건비)'
+                : '거래로 등록 (월 환산 인건비)'}
           </button>
         </>
       ) : (

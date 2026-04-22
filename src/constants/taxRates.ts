@@ -97,6 +97,18 @@ export const CURRENT_TAX_RATES = TAX_RATES_2025
 export const TAX_DISCLAIMER =
   `본 계산은 ${CURRENT_TAX_RATES.year}년 세율 기준 참고용이며, 실제 세금 신고 시 세무사 상담을 권장합니다.`
 
+/** 2025년 4대 보험 사용자 부담률 */
+export const INSURANCE_RATES_2025 = {
+  /** 국민연금 사용자 부담 (근로자 기준) */
+  nationalPension: 0.045,
+  /** 건강보험 사용자 부담 */
+  healthInsurance: 0.0709 / 2,
+  /** 고용보험 사용자 부담 (150인 미만) */
+  employmentInsurance: 0.009,
+  /** 산재보험 (업종 평균) */
+  industrialAccident: 0.018,
+} as const
+
 /** 종합소득세 소득공제 상수 (2025년 기준) */
 export const TAX_DEDUCTION_CONSTANTS = {
   /** 부양가족 1인당 기본공제 (원) */

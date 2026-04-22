@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { useTransactionStore } from '@/stores/transactionStore'
 import { useRecurringStore } from '@/stores/recurringStore'
+import { useAssetStore } from '@/stores/assetStore'
 import { useSettingsStore } from '@/stores/settingsStore'
 import MonthSummary from '@/components/dashboard/MonthSummary'
 import GoalWidget from '@/components/dashboard/GoalWidget'
@@ -23,12 +24,15 @@ export default function DashboardPage() {
   const transactions = useTransactionStore((s) => s.transactions)
   const addTransaction = useTransactionStore((s) => s.addTransaction)
   const applyDueTemplates = useRecurringStore((s) => s.applyDueTemplates)
+  const applyMonthlyDepreciation = useAssetStore((s) => s.applyMonthlyDepreciation)
   const { onboardingCompleted, questCompleted } = useSettingsStore()
 
-  // 대시보드 마운트 시 반복 거래 템플릿 자동 적용 (오늘 기준 이번 달 미적용 항목만)
+  // 대시보드 마운트 시 반복 거래 템플릿 + 사업용 자산 감가상각 자동 적용
+  // (오늘 기준 이번 달 미적용 항목만, 중복 방지 lastAppliedMonth로 보장)
   useEffect(() => {
     applyDueTemplates(addTransaction)
-  }, [applyDueTemplates, addTransaction])
+    applyMonthlyDepreciation(addTransaction)
+  }, [applyDueTemplates, applyMonthlyDepreciation, addTransaction])
 
   const recentTransactions = useMemo(() => {
     return [...transactions]

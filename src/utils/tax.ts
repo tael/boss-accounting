@@ -3,7 +3,7 @@
  * 모든 금액은 정수 원(KRW) 단위로 처리
  */
 
-import { CURRENT_TAX_RATES, TAX_DEDUCTION_CONSTANTS } from '@/constants/taxRates'
+import { CURRENT_TAX_RATES, TAX_DEDUCTION_CONSTANTS, INSURANCE_RATES_2025 } from '@/constants/taxRates'
 import type { TaxRates } from '@/constants/taxRates'
 
 export interface VATResult {
@@ -257,6 +257,21 @@ export interface LaborCostResult {
   isEligible: boolean
 }
 
+export interface TrueLaborCostResult extends LaborCostResult {
+  /** 국민연금 사용자 부담 (원, 월) */
+  nationalPension: number
+  /** 건강보험 사용자 부담 (원, 월) */
+  healthInsurance: number
+  /** 고용보험 사용자 부담 (원, 월) */
+  employmentInsurance: number
+  /** 산재보험 (원, 월) */
+  industrialAccident: number
+  /** 4대 보험 합계 (원, 월) */
+  totalInsurance: number
+  /** 총 인건비 + 4대 보험 합계 (원, 월) */
+  trueMonthlyCost: number
+}
+
 export function calculateLaborCost(
   hourlyWage: number,
   weeklyHours: number,
@@ -269,6 +284,38 @@ export function calculateLaborCost(
   const totalWeeklyPay = baseWeeklyPay + weeklyHolidayPay
   const totalMonthlyPay = Math.round(totalWeeklyPay * 4.345)
   return { baseWeeklyPay, weeklyHolidayPay, totalWeeklyPay, totalMonthlyPay, isEligible }
+}
+
+/**
+ * 4대 보험 포함 실질 인건비 계산 (2025년 요율 적용)
+ * 사용자(사업주) 부담분 기준
+ *
+ * @param hourlyWage 시급 (원)
+ * @param weeklyHours 주당 근무시간
+ */
+export function calculateTrueLaborCost(
+  hourlyWage: number,
+  weeklyHours: number,
+): TrueLaborCostResult {
+  const base = calculateLaborCost(hourlyWage, weeklyHours)
+  const monthly = base.totalMonthlyPay
+
+  const nationalPension = Math.round(monthly * INSURANCE_RATES_2025.nationalPension)
+  const healthInsurance = Math.round(monthly * INSURANCE_RATES_2025.healthInsurance)
+  const employmentInsurance = Math.round(monthly * INSURANCE_RATES_2025.employmentInsurance)
+  const industrialAccident = Math.round(monthly * INSURANCE_RATES_2025.industrialAccident)
+  const totalInsurance = nationalPension + healthInsurance + employmentInsurance + industrialAccident
+  const trueMonthlyCost = monthly + totalInsurance
+
+  return {
+    ...base,
+    nationalPension,
+    healthInsurance,
+    employmentInsurance,
+    industrialAccident,
+    totalInsurance,
+    trueMonthlyCost,
+  }
 }
 
 /**
