@@ -35,7 +35,7 @@ export default function InsightCard() {
   const [expanded, setExpanded] = useState(false)
 
   const insights = useMemo(
-    () => generateInsights(transactions).sort((a, b) => b.priority - a.priority),
+    () => generateInsights(transactions),
     [transactions],
   )
   const visible = expanded ? insights : insights.slice(0, MAX_VISIBLE)

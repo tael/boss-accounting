@@ -1,5 +1,5 @@
 import type { BookReferenceKey } from '@/constants/bookReferences'
-import { formatKRW, formatMargin, formatChangeRate } from '@/utils/format'
+import { formatKRW, formatMargin } from '@/utils/format'
 import BookReference from '@/components/transactions/BookReference'
 
 interface StatCardProps {
@@ -38,7 +38,7 @@ export default function StatCard({ title, value, previousValue, format, refKey }
           <span
             className={`text-sm font-medium ${isPositive ? 'text-green-600' : 'text-red-500'}`}
           >
-            {isPositive ? '▲' : '▼'} {formatChangeRate(Math.abs(changeRate))}
+            {isPositive ? '▲' : '▼'} {Math.abs(changeRate).toFixed(1)}%
           </span>
           <span className="text-xs text-gray-400">전월 대비</span>
         </div>

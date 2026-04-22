@@ -202,7 +202,7 @@ export function generateInsights(transactions: Transaction[]): FinancialInsight[
   }
 
   const now = new Date()
-  const thisMonth = now.toISOString().slice(0, 7) // YYYY-MM
+  const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}` // YYYY-MM (로컬 시간 기준)
 
   const currentMonthTransactions = filterByMonth(transactions, thisMonth)
   const incomeStatement = calculateIncomeStatement(currentMonthTransactions, thisMonth)
