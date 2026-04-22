@@ -37,6 +37,7 @@ export default defineConfig({
     workspace: [{
       extends: true,
       test: {
+        name: 'unit',
         globals: true,
         environment: 'jsdom',
         setupFiles: ['./tests/setup.ts']
