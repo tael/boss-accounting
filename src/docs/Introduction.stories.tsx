@@ -6,6 +6,7 @@ const meta: Meta = {
   parameters: {
     layout: 'fullscreen',
     docs: { disable: true },
+    order: 0,
   },
 }
 
