@@ -3,6 +3,7 @@ import { useTransactionStore } from '@/stores/transactionStore'
 import TransactionFilter from '@/components/transactions/TransactionFilter'
 import TransactionList from '@/components/transactions/TransactionList'
 import TransactionForm from '@/components/transactions/TransactionForm'
+import SmsParserInput from '@/components/transactions/SmsParserInput'
 import BookReference from '@/components/transactions/BookReference'
 import RecurringList from '@/components/recurring/RecurringList'
 import { filterTransactions } from '@/utils/financial'
@@ -12,6 +13,7 @@ export default function TransactionsPage() {
   const { transactions } = useTransactionStore()
   const [filter, setFilter] = useState<FilterState>({})
   const [showForm, setShowForm] = useState(false)
+  const [showSmsParser, setShowSmsParser] = useState(false)
 
   const filtered = useMemo(() => filterTransactions(transactions, filter), [filter, transactions])
 
@@ -33,15 +35,37 @@ export default function TransactionsPage() {
           <h1 className="text-xl font-bold text-gray-900">거래 기록</h1>
           <BookReference refKey="transactions.categories" />
         </div>
-        <button
-          type="button"
-          onClick={() => setShowForm(true)}
-          className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
-        >
-          <span className="text-base leading-none">+</span>
-          거래 추가
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => { setShowSmsParser(!showSmsParser); setShowForm(false) }}
+            className={[
+              'flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors shadow-sm',
+              showSmsParser
+                ? 'bg-indigo-100 text-indigo-700 border border-indigo-300'
+                : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50',
+            ].join(' ')}
+          >
+            문자 붙여넣기
+          </button>
+          <button
+            type="button"
+            onClick={() => { setShowForm(true); setShowSmsParser(false) }}
+            className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
+          >
+            <span className="text-base leading-none">+</span>
+            거래 추가
+          </button>
+        </div>
       </div>
+
+      {/* 문자 파서 인라인 섹션 */}
+      {showSmsParser && (
+        <div className="bg-white rounded-xl border border-indigo-200 shadow-sm p-5">
+          <h2 className="text-sm font-semibold text-gray-700 mb-4">알림 문자로 거래 추가</h2>
+          <SmsParserInput onSuccess={() => setShowSmsParser(false)} />
+        </div>
+      )}
 
       {/* 거래 추가 인라인 폼 */}
       {showForm && (

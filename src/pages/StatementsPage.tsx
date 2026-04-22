@@ -1,6 +1,7 @@
 import IncomeStatement from '@/components/statements/IncomeStatement'
 import CashFlowChart from '@/components/statements/CashFlowChart'
 import BalanceSnapshot from '@/components/statements/BalanceSnapshot'
+import SimpleLedger from '@/components/statements/SimpleLedger'
 import { BOOK_REFERENCES } from '@/constants/bookReferences'
 import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 
@@ -41,6 +42,8 @@ export default function StatementsPage() {
           참고: 챕터 {balanceRef.chapter} — {balanceRef.title}
         </p>
       </div>
+
+      <SimpleLedger />
     </div>
   )
 }

@@ -4,6 +4,7 @@ import ExpenseComparisonChart from '@/components/analysis/ExpenseComparisonChart
 import ExpensePieChart from '@/components/analysis/ExpensePieChart'
 import TrendChart from '@/components/analysis/TrendChart'
 import YoYChart from '@/components/analysis/YoYChart'
+import WhatIfSimulator from '@/components/analysis/WhatIfSimulator'
 import { BOOK_REFERENCES } from '@/constants/bookReferences'
 import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 
@@ -23,6 +24,8 @@ export default function AnalysisPage() {
           참고: 챕터 {bepRef.chapter} — {bepRef.title}
         </p>
       </div>
+
+      <WhatIfSimulator />
 
       <ErrorBoundary
         fallback={

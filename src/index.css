@@ -36,6 +36,28 @@
   box-sizing: border-box;
 }
 
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background-color: #fff;
+  }
+
+  .simple-ledger-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11pt;
+  }
+
+  .simple-ledger-table th,
+  .simple-ledger-table td {
+    border: 1px solid #999;
+    padding: 4px 6px;
+  }
+}
+
 body {
   font-family: var(--font-sans);
   background-color: #f9fafb;
