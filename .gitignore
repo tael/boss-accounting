@@ -37,3 +37,6 @@ coverage/
 # Vite 캐시
 .vite/
 .omc/
+
+*storybook.log
+storybook-static

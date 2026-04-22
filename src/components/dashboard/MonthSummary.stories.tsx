@@ -5,7 +5,7 @@ import { useTransactionStore } from '@/stores/transactionStore'
 import type { Transaction } from '@/types/transaction'
 
 const meta: Meta<typeof MonthSummary> = {
-  title: 'Dashboard/MonthSummary',
+  title: '대시보드/MonthSummary',
   component: MonthSummary,
   tags: ['autodocs'],
   parameters: {

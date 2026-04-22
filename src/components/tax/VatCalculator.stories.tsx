@@ -4,7 +4,7 @@ import VatCalculator from './VatCalculator'
 import { useSettingsStore } from '@/stores/settingsStore'
 
 const meta: Meta<typeof VatCalculator> = {
-  title: 'Tax/VatCalculator',
+  title: '세금 계산기/VatCalculator',
   component: VatCalculator,
   tags: ['autodocs'],
   parameters: {

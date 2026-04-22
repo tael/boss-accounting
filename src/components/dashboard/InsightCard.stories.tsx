@@ -5,7 +5,7 @@ import { useTransactionStore } from '@/stores/transactionStore'
 import type { Transaction } from '@/types/transaction'
 
 const meta: Meta<typeof InsightCard> = {
-  title: 'Dashboard/InsightCard',
+  title: '대시보드/InsightCard',
   component: InsightCard,
   tags: ['autodocs'],
   parameters: {

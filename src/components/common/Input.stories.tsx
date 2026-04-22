@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Input } from './Input'
 
 const meta: Meta<typeof Input> = {
-  title: 'Common/Input',
+  title: '공통 컴포넌트/Input',
   component: Input,
   tags: ['autodocs'],
   argTypes: {

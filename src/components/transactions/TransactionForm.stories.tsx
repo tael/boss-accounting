@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import TransactionForm from './TransactionForm'
 
 const meta: Meta<typeof TransactionForm> = {
-  title: 'Transactions/TransactionForm',
+  title: '거래 관리/TransactionForm',
   component: TransactionForm,
   tags: ['autodocs'],
   parameters: {

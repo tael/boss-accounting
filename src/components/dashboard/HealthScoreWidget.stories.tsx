@@ -3,7 +3,7 @@ import HealthScoreWidget from './HealthScoreWidget'
 import { useTransactionStore } from '@/stores/transactionStore'
 
 const meta: Meta<typeof HealthScoreWidget> = {
-  title: 'Dashboard/HealthScoreWidget',
+  title: '대시보드/HealthScoreWidget',
   component: HealthScoreWidget,
   tags: ['autodocs'],
 }

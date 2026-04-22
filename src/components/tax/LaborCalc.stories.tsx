@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import LaborCalc from './LaborCalc'
 
 const meta: Meta<typeof LaborCalc> = {
-  title: 'Tax/LaborCalc',
+  title: '세금 계산기/LaborCalc',
   component: LaborCalc,
   tags: ['autodocs'],
   parameters: {

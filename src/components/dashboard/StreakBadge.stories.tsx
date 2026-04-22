@@ -5,7 +5,7 @@ import { useSettingsStore } from '@/stores/settingsStore'
 import { getTodayLocal } from '@/utils/format'
 
 const meta: Meta<typeof StreakBadge> = {
-  title: 'Dashboard/StreakBadge',
+  title: '대시보드/StreakBadge',
   component: StreakBadge,
   tags: ['autodocs'],
 }

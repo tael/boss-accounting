@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import StatCard from './StatCard'
 
 const meta: Meta<typeof StatCard> = {
-  title: 'Dashboard/StatCard',
+  title: '대시보드/StatCard',
   component: StatCard,
   tags: ['autodocs'],
   argTypes: {

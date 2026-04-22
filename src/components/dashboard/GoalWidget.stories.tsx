@@ -4,7 +4,7 @@ import { useTransactionStore } from '@/stores/transactionStore'
 import { useSettingsStore } from '@/stores/settingsStore'
 
 const meta: Meta<typeof GoalWidget> = {
-  title: 'Dashboard/GoalWidget',
+  title: '대시보드/GoalWidget',
   component: GoalWidget,
   tags: ['autodocs'],
   decorators: [
