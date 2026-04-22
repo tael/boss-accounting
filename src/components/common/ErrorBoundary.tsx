@@ -1,7 +1,11 @@
 import { Component } from 'react'
 import type { ReactNode, ErrorInfo } from 'react'
 
-interface Props { children: ReactNode }
+interface Props {
+  children: ReactNode
+  /** 섹션 단위로 래핑할 때 전달. 생략 시 전체 페이지 오류 UI 표시 */
+  fallback?: ReactNode
+}
 interface State { hasError: boolean; error: Error | null }
 
 export class ErrorBoundary extends Component<Props, State> {
@@ -17,6 +21,9 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
+      if (this.props.fallback !== undefined) {
+        return this.props.fallback
+      }
       return (
         <div className="min-h-screen flex items-center justify-center p-8 bg-gray-50">
           <div className="max-w-md w-full bg-white rounded-xl border border-red-200 p-6 space-y-4 text-center">

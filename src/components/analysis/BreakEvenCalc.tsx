@@ -43,6 +43,12 @@ export default function BreakEvenCalc() {
         </button>
       </div>
 
+      {transactions.length === 0 && (
+        <p className="text-xs text-gray-400 mb-3">
+          거래 데이터를 먼저 입력하면 현재 비용 구조를 자동으로 불러올 수 있어요.
+        </p>
+      )}
+
       {autoSource && (
         <p className="text-xs text-gray-400 mb-3">
           최근 3개월 평균 ({autoSource.from} ~ {autoSource.to}) 기준

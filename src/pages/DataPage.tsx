@@ -4,6 +4,7 @@ import { useSettingsStore } from '@/stores/settingsStore'
 import { exportToJSON, importFromJSON } from '@/utils/exportImport'
 import { buildSampleTransactions } from '@/utils/sampleData'
 import GoogleDriveBackup from '@/components/data/GoogleDriveBackup'
+import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 
 function getLocalStorageUsageKB(): number {
   try {
@@ -215,7 +216,15 @@ export default function DataPage() {
       </div>
 
       {/* 구글 드라이브 백업 */}
-      <GoogleDriveBackup />
+      <ErrorBoundary
+        fallback={
+          <div className="bg-white rounded-xl border border-red-200 p-5 text-center text-sm text-red-400">
+            구글 드라이브 백업을 불러오는 중 오류가 발생했습니다.
+          </div>
+        }
+      >
+        <GoogleDriveBackup />
+      </ErrorBoundary>
     </div>
   )
 }

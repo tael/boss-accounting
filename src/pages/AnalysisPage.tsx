@@ -2,6 +2,7 @@ import BreakEvenCalc from '@/components/analysis/BreakEvenCalc'
 import ExpensePieChart from '@/components/analysis/ExpensePieChart'
 import TrendChart from '@/components/analysis/TrendChart'
 import { BOOK_REFERENCES } from '@/constants/bookReferences'
+import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 
 export default function AnalysisPage() {
   const bepRef = BOOK_REFERENCES['analysis.breakEven']
@@ -19,19 +20,35 @@ export default function AnalysisPage() {
         </p>
       </div>
 
-      <div className="space-y-1">
-        <ExpensePieChart />
-        <p className="text-xs text-gray-400 px-1">
-          참고: 챕터 {expenseRef.chapter} — {expenseRef.title}
-        </p>
-      </div>
+      <ErrorBoundary
+        fallback={
+          <div className="bg-white rounded-xl border border-red-200 p-5 text-center text-sm text-red-400">
+            차트를 불러오는 중 오류가 발생했습니다.
+          </div>
+        }
+      >
+        <div className="space-y-1">
+          <ExpensePieChart />
+          <p className="text-xs text-gray-400 px-1">
+            참고: 챕터 {expenseRef.chapter} — {expenseRef.title}
+          </p>
+        </div>
+      </ErrorBoundary>
 
-      <div className="space-y-1">
-        <TrendChart />
-        <p className="text-xs text-gray-400 px-1">
-          참고: 챕터 {trendRef.chapter} — {trendRef.title}
-        </p>
-      </div>
+      <ErrorBoundary
+        fallback={
+          <div className="bg-white rounded-xl border border-red-200 p-5 text-center text-sm text-red-400">
+            차트를 불러오는 중 오류가 발생했습니다.
+          </div>
+        }
+      >
+        <div className="space-y-1">
+          <TrendChart />
+          <p className="text-xs text-gray-400 px-1">
+            참고: 챕터 {trendRef.chapter} — {trendRef.title}
+          </p>
+        </div>
+      </ErrorBoundary>
     </div>
   )
 }
