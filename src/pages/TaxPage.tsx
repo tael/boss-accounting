@@ -1,5 +1,6 @@
 import TaxDisclaimer from '@/components/tax/TaxDisclaimer'
 import VatCalculator from '@/components/tax/VatCalculator'
+import AnnualTaxTracker from '@/components/tax/AnnualTaxTracker'
 import IncomeTaxCalc from '@/components/tax/IncomeTaxCalc'
 import LaborCalc from '@/components/tax/LaborCalc'
 import TaxTips from '@/components/tax/TaxTips'
@@ -30,6 +31,8 @@ export default function TaxPage() {
           참고: 챕터 {vatRef.chapter} — {vatRef.title}
         </p>
       </div>
+
+      <AnnualTaxTracker />
 
       <div className="space-y-1">
         <IncomeTaxCalc />

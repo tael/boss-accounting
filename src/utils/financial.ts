@@ -567,3 +567,55 @@ export function calculateCostStructure(
     monthRange: { from: targetMonths[0]!, to: targetMonths[targetMonths.length - 1]! },
   }
 }
+
+export interface BusinessLevel {
+  level: number
+  title: string
+  nextTitle: string
+  progress: number // 0-100
+}
+
+/**
+ * 사장님 레벨 계산
+ * @param totalTransactions 전체 거래 건수
+ * @param totalProfitKRW 전체 누적 순이익 (현재는 보조 지표)
+ */
+export function getBusinessLevel(
+  totalTransactions: number,
+  totalProfitKRW: number,
+): BusinessLevel {
+  void totalProfitKRW // 향후 레벨 산정에 활용 예정
+
+  const levels = [
+    { min: 0, title: '구멍가게 사장님' },
+    { min: 10, title: '골목 대장' },
+    { min: 50, title: '동네 명소' },
+    { min: 100, title: '지역 터줏대감' },
+    { min: 200, title: '업계 고수' },
+    { min: 500, title: '사업의 달인' },
+  ]
+
+  let currentLevelIdx = 0
+  for (let i = levels.length - 1; i >= 0; i--) {
+    if (totalTransactions >= levels[i]!.min) {
+      currentLevelIdx = i
+      break
+    }
+  }
+
+  const nextLevelIdx = Math.min(currentLevelIdx + 1, levels.length - 1)
+  const currentMin = levels[currentLevelIdx]!.min
+  const nextMin = levels[nextLevelIdx]!.min
+
+  const progress =
+    currentLevelIdx === levels.length - 1
+      ? 100
+      : Math.min(100, Math.round(((totalTransactions - currentMin) / (nextMin - currentMin)) * 100))
+
+  return {
+    level: currentLevelIdx + 1,
+    title: levels[currentLevelIdx]!.title,
+    nextTitle: levels[nextLevelIdx]!.title,
+    progress,
+  }
+}

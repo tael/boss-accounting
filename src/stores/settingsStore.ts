@@ -34,6 +34,12 @@ export interface Settings {
   questCompleted: string[]
   /** 카테고리별 월 예산 한도 (categoryId → 원) */
   categoryBudgets: Record<string, number>
+  /** 마지막 거래 입력 날짜 (YYYY-MM-DD) */
+  lastEntryDate: string
+  /** 연속 기록 일수 */
+  currentStreak: number
+  /** 최장 연속 기록 */
+  maxStreak: number
 }
 
 const DEFAULT_SETTINGS: Settings = {
@@ -47,6 +53,9 @@ const DEFAULT_SETTINGS: Settings = {
   taxSavingChecklist: [],
   questCompleted: [],
   categoryBudgets: {},
+  lastEntryDate: '',
+  currentStreak: 0,
+  maxStreak: 0,
 }
 
 interface SettingsState extends Settings {

@@ -8,10 +8,11 @@ import GoalWidget from '@/components/dashboard/GoalWidget'
 import HealthScoreWidget from '@/components/dashboard/HealthScoreWidget'
 import OnboardingQuest from '@/components/dashboard/OnboardingQuest'
 import InsightCard from '@/components/dashboard/InsightCard'
+import StreakBadge from '@/components/dashboard/StreakBadge'
 import { getUpcomingSchedule, getDDaySchedules } from '@/constants/taxSchedule'
 import type { TaxType } from '@/constants/taxSchedule'
 import { BOOK_REFERENCES } from '@/constants/bookReferences'
-import { formatKRW } from '@/utils/format'
+import { formatKRW, getTodayLocal } from '@/utils/format'
 
 
 const TYPE_LABEL: Record<TaxType, string> = {
@@ -25,7 +26,7 @@ export default function DashboardPage() {
   const addTransaction = useTransactionStore((s) => s.addTransaction)
   const applyDueTemplates = useRecurringStore((s) => s.applyDueTemplates)
   const applyMonthlyDepreciation = useAssetStore((s) => s.applyMonthlyDepreciation)
-  const { onboardingCompleted, questCompleted } = useSettingsStore()
+  const { onboardingCompleted, questCompleted, lastEntryDate, currentStreak, maxStreak, updateSettings } = useSettingsStore()
 
   // 대시보드 마운트 시 반복 거래 템플릿 + 사업용 자산 감가상각 자동 적용
   // (오늘 기준 이번 달 미적용 항목만, 중복 방지 lastAppliedMonth로 보장)
@@ -33,6 +34,23 @@ export default function DashboardPage() {
     applyDueTemplates(addTransaction)
     applyMonthlyDepreciation(addTransaction)
   }, [applyDueTemplates, applyMonthlyDepreciation, addTransaction])
+
+  // 오늘 거래가 있으면 스트릭 갱신
+  useEffect(() => {
+    const today = getTodayLocal()
+    const todayTxCount = transactions.filter((tx) => tx.date === today).length
+    if (todayTxCount > 0 && lastEntryDate !== today) {
+      const d = new Date()
+      d.setDate(d.getDate() - 1)
+      const yesterday = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+      const newStreak = lastEntryDate === yesterday ? currentStreak + 1 : 1
+      updateSettings({
+        lastEntryDate: today,
+        currentStreak: newStreak,
+        maxStreak: Math.max(maxStreak, newStreak),
+      })
+    }
+  }, [transactions, lastEntryDate, currentStreak, maxStreak, updateSettings])
 
   const recentTransactions = useMemo(() => {
     return [...transactions]
@@ -49,6 +67,8 @@ export default function DashboardPage() {
       <h1 className="text-xl font-bold text-gray-900">대시보드</h1>
 
       <MonthSummary />
+
+      <StreakBadge />
 
       <GoalWidget />
 

@@ -318,6 +318,87 @@ export function calculateTrueLaborCost(
   }
 }
 
+export interface AnnualTaxForecast {
+  /** 올해 현재까지 순이익 (원) */
+  currentNetIncomeKRW: number
+  /** 연말까지 추정 연소득 (원). 월 평균 × 12 */
+  projectedAnnualIncomeKRW: number
+  /** 현재 소득 기준 세율 구간 */
+  currentBracket: import('@/constants/taxRates').IncomeTaxBracket | null
+  /** 추정 연소득 기준 세율 구간 */
+  projectedBracket: import('@/constants/taxRates').IncomeTaxBracket | null
+  /** 세율 구간 변경 여부 */
+  willBracketChange: boolean
+  /** 다음 구간까지 남은 금액 (원). 이미 최고 구간이면 null */
+  amountToNextBracketKRW: number | null
+  /** 추정 연소득 기준 종합소득세 산출세액 (원) */
+  projectedTaxKRW: number
+  /** 현재 월 인덱스 (1-12) */
+  currentMonthIndex: number
+}
+
+/**
+ * 연말 과세표준 추정 및 세율 구간 변경 경고
+ *
+ * 추정 방식: 현재 순이익 ÷ 경과 월수 × 12
+ *
+ * @param currentNetIncomeKRW 올해 현재까지 순이익 (원)
+ * @param currentMonthIndex 현재 월 (1-12)
+ * @param rates 적용 세율 (기본값: 현재 세율)
+ */
+export function forecastAnnualTax(
+  currentNetIncomeKRW: number,
+  currentMonthIndex: number,
+  rates: TaxRates = CURRENT_TAX_RATES,
+): AnnualTaxForecast {
+  const monthIndex = Math.max(1, Math.min(12, currentMonthIndex))
+
+  // 월 평균 × 12로 연 소득 추정
+  const monthlyAvg = currentNetIncomeKRW / monthIndex
+  const projectedAnnualIncomeKRW = Math.round(monthlyAvg * 12)
+
+  /** 세율 구간 찾기 헬퍼 */
+  function findBracket(income: number) {
+    if (income <= 0) return null
+    return (
+      rates.incomeTaxBrackets.find(
+        (b) => income >= b.minKRW && (b.maxKRW === null || income < b.maxKRW),
+      ) ?? rates.incomeTaxBrackets[rates.incomeTaxBrackets.length - 1] ?? null
+    )
+  }
+
+  const currentBracket = findBracket(currentNetIncomeKRW)
+  const projectedBracket = findBracket(projectedAnnualIncomeKRW)
+
+  const willBracketChange =
+    currentBracket !== null &&
+    projectedBracket !== null &&
+    currentBracket.rate !== projectedBracket.rate
+
+  // 다음 구간 시작점까지 남은 금액 (현재 소득 기준)
+  let amountToNextBracketKRW: number | null = null
+  if (currentBracket !== null && currentBracket.maxKRW !== null) {
+    amountToNextBracketKRW = currentBracket.maxKRW - currentNetIncomeKRW
+  }
+
+  // 추정 연소득 기준 산출세액
+  const projectedTaxKRW =
+    projectedAnnualIncomeKRW > 0
+      ? calculateIncomeTax(projectedAnnualIncomeKRW, undefined, rates).calculatedTaxKRW
+      : 0
+
+  return {
+    currentNetIncomeKRW,
+    projectedAnnualIncomeKRW,
+    currentBracket,
+    projectedBracket,
+    willBracketChange,
+    amountToNextBracketKRW,
+    projectedTaxKRW,
+    currentMonthIndex: monthIndex,
+  }
+}
+
 /**
  * 손익분기점(BEP) 계산
  * BEP = 고정비 ÷ (1 - 변동비율)
