@@ -34,12 +34,35 @@
   --toss-red: #f04452;
   --toss-green: #03b26c;
   --toss-orange: #fe9800;
+
+  /* Typography */
+  --toss-letter-spacing: -0.02em;
+  --toss-line-height: 1.5;
+
+  /* Shadow (토스 부드러운 그림자) */
+  --toss-shadow-card: 0 2px 4px rgba(0, 0, 0, 0.02), 0 12px 24px rgba(0, 0, 0, 0.04);
+  --toss-shadow-float: 0 4px 8px rgba(0, 0, 0, 0.04), 0 16px 32px rgba(0, 0, 0, 0.08);
+
+  /* Border Radius */
+  --toss-radius-sm: 8px;
+  --toss-radius-md: 12px;
+  --toss-radius-lg: 16px;
+  --toss-radius-xl: 22px;
+
+  /* Grey Opacity */
+  --toss-overlay-sm: rgba(0, 23, 51, 0.02);
+  --toss-overlay-md: rgba(2, 32, 71, 0.05);
+  --toss-overlay-lg: rgba(0, 27, 55, 0.10);
 }
 
 /* Storybook 글로벌 스타일 */
 .sb-show-main {
   background-color: var(--toss-grey-background) !important;
   font-family: 'Pretendard', 'Apple SD Gothic Neo', -apple-system, sans-serif !important;
+  letter-spacing: var(--toss-letter-spacing);
+  line-height: var(--toss-line-height);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Story 컨테이너 — 흰 카드 위에 컴포넌트 표시 */
@@ -55,7 +78,7 @@
 .sbdocs-content {
   background-color: var(--toss-background) !important;
   border-radius: 12px !important;
-  box-shadow: 0 1px 3px rgba(0, 23, 51, 0.06) !important;
+  box-shadow: var(--toss-shadow-card) !important;
 }
 
 /* Controls 테이블 */

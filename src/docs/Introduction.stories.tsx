@@ -1,3 +1,4 @@
+import React from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
 
 const meta: Meta = {
@@ -115,7 +116,21 @@ const greyScale = [
   { name: 'grey900', hex: colors.grey900 },
 ]
 
+const principles = [
+  { icon: '✦', title: 'Simple', desc: '복잡한 금융을 단순하게. 군더더기 없는 UI.' },
+  { icon: '◎', title: 'Clear', desc: '숫자와 데이터를 명확하게. 정보 위계 최우선.' },
+  { icon: '→', title: 'Direct', desc: '사용자가 원하는 것을 바로. 최소 클릭.' },
+]
+
 function IntroductionPage() {
+  const [copied, setCopied] = React.useState<string | null>(null)
+
+  const copyColor = (hex: string) => {
+    navigator.clipboard.writeText(hex)
+    setCopied(hex)
+    setTimeout(() => setCopied(null), 1500)
+  }
+
   return (
     <div
       style={{
@@ -202,6 +217,32 @@ function IntroductionPage() {
 
       {/* 본문 */}
       <div style={{ maxWidth: 960, margin: '0 auto', padding: '48px 24px 80px' }}>
+
+        {/* 디자인 원칙 */}
+        <section style={{ marginBottom: 56 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
+            {principles.map((p) => (
+              <div
+                key={p.title}
+                style={{
+                  backgroundColor: '#fff',
+                  borderRadius: 16,
+                  padding: '28px 24px',
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.07)',
+                  border: `1px solid ${colors.grey200}`,
+                }}
+              >
+                <div style={{ fontSize: 24, marginBottom: 12 }}>{p.icon}</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: colors.grey900, marginBottom: 8 }}>
+                  {p.title}
+                </div>
+                <p style={{ fontSize: 14, color: colors.grey600, margin: 0, lineHeight: 1.6 }}>
+                  {p.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
 
         {/* 컴포넌트 카테고리 */}
         <section style={{ marginBottom: 56 }}>
@@ -322,14 +363,28 @@ function IntroductionPage() {
               {blueScale.map((swatch) => (
                 <div key={swatch.name} style={{ textAlign: 'center', flex: '1 1 80px', minWidth: 64 }}>
                   <div
+                    onClick={() => copyColor(swatch.hex)}
                     style={{
                       height: 48,
                       borderRadius: 8,
                       backgroundColor: swatch.hex,
                       border: `1px solid ${colors.grey200}`,
                       marginBottom: 6,
+                      cursor: 'pointer',
+                      position: 'relative',
                     }}
-                  />
+                  >
+                    {copied === swatch.hex && (
+                      <div style={{
+                        position: 'absolute', inset: 0,
+                        background: 'rgba(0,0,0,0.6)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        borderRadius: '8px', color: '#fff', fontSize: '11px', fontWeight: 600,
+                      }}>
+                        복사됨!
+                      </div>
+                    )}
+                  </div>
                   <div style={{ fontSize: 11, fontWeight: 600, color: colors.grey700 }}>
                     {swatch.name}
                   </div>
@@ -366,14 +421,28 @@ function IntroductionPage() {
               {greyScale.map((swatch) => (
                 <div key={swatch.name} style={{ textAlign: 'center', flex: '1 1 72px', minWidth: 56 }}>
                   <div
+                    onClick={() => copyColor(swatch.hex)}
                     style={{
                       height: 48,
                       borderRadius: 8,
                       backgroundColor: swatch.hex,
                       border: `1px solid ${colors.grey200}`,
                       marginBottom: 6,
+                      cursor: 'pointer',
+                      position: 'relative',
                     }}
-                  />
+                  >
+                    {copied === swatch.hex && (
+                      <div style={{
+                        position: 'absolute', inset: 0,
+                        background: 'rgba(0,0,0,0.6)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        borderRadius: '8px', color: '#fff', fontSize: '11px', fontWeight: 600,
+                      }}>
+                        복사됨!
+                      </div>
+                    )}
+                  </div>
                   <div style={{ fontSize: 11, fontWeight: 600, color: colors.grey700 }}>
                     {swatch.name}
                   </div>
