@@ -244,6 +244,33 @@ export function calculateYellowUmbrellaSaving(
   return resultWithoutYellow.calculatedTaxKRW - result.calculatedTaxKRW
 }
 
+export interface LaborCostResult {
+  /** 기본 주급 (원) */
+  baseWeeklyPay: number
+  /** 주휴수당 (원). 주 15시간 미만이면 0 */
+  weeklyHolidayPay: number
+  /** 주 총 인건비 */
+  totalWeeklyPay: number
+  /** 월 환산 총 인건비 (× 4.345주) */
+  totalMonthlyPay: number
+  /** 주휴수당 발생 여부 */
+  isEligible: boolean
+}
+
+export function calculateLaborCost(
+  hourlyWage: number,
+  weeklyHours: number,
+): LaborCostResult {
+  const baseWeeklyPay = Math.round(hourlyWage * weeklyHours)
+  const isEligible = weeklyHours >= 15
+  const weeklyHolidayPay = isEligible
+    ? Math.round(hourlyWage * (weeklyHours / 40) * 8)
+    : 0
+  const totalWeeklyPay = baseWeeklyPay + weeklyHolidayPay
+  const totalMonthlyPay = Math.round(totalWeeklyPay * 4.345)
+  return { baseWeeklyPay, weeklyHolidayPay, totalWeeklyPay, totalMonthlyPay, isEligible }
+}
+
 /**
  * 손익분기점(BEP) 계산
  * BEP = 고정비 ÷ (1 - 변동비율)

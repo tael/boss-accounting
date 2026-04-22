@@ -1,7 +1,9 @@
 import TaxDisclaimer from '@/components/tax/TaxDisclaimer'
 import VatCalculator from '@/components/tax/VatCalculator'
 import IncomeTaxCalc from '@/components/tax/IncomeTaxCalc'
+import LaborCalc from '@/components/tax/LaborCalc'
 import TaxTips from '@/components/tax/TaxTips'
+import TaxSavingChecklist from '@/components/tax/TaxSavingChecklist'
 import { BOOK_REFERENCES } from '@/constants/bookReferences'
 import { useSettingsStore } from '@/stores/settingsStore'
 
@@ -36,7 +38,11 @@ export default function TaxPage() {
         </p>
       </div>
 
+      <LaborCalc />
+
       <TaxTips />
+
+      <TaxSavingChecklist />
     </div>
   )
 }

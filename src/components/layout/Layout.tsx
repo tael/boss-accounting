@@ -3,6 +3,7 @@ import { Header } from './Header'
 import { Sidebar } from './Sidebar'
 import { ToastProvider } from '@/components/common/Toast'
 import { OnboardingModal } from '@/components/common/OnboardingModal'
+import { QuickEntryFab } from '@/components/common/QuickEntryFab'
 import { useSettingsStore } from '@/stores/settingsStore'
 
 export function Layout() {
@@ -20,6 +21,7 @@ export function Layout() {
         </div>
       </div>
       <OnboardingModal isOpen={!onboardingCompleted} />
+      <QuickEntryFab />
     </ToastProvider>
   )
 }

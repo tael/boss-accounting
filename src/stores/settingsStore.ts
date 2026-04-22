@@ -28,6 +28,8 @@ export interface Settings {
   onboardingCompleted: boolean
   /** 월 목표 순이익 (원, 0이면 미설정) */
   monthlyProfitGoalKRW: number
+  /** 절세 체크리스트 완료 항목 ID 목록 */
+  taxSavingChecklist: string[]
 }
 
 const DEFAULT_SETTINGS: Settings = {
@@ -38,6 +40,7 @@ const DEFAULT_SETTINGS: Settings = {
   hasEmployees: false,
   onboardingCompleted: false,
   monthlyProfitGoalKRW: 0,
+  taxSavingChecklist: [],
 }
 
 interface SettingsState extends Settings {
