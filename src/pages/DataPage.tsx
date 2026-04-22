@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { useTransactionStore } from '@/stores/transactionStore'
+import { useSettingsStore } from '@/stores/settingsStore'
 import { exportToJSON, importFromJSON } from '@/utils/exportImport'
 import { buildSampleTransactions } from '@/utils/sampleData'
 import GoogleDriveBackup from '@/components/data/GoogleDriveBackup'
@@ -19,6 +20,7 @@ function getLocalStorageUsageKB(): number {
 
 export default function DataPage() {
   const { transactions, clearAll, importTransactions, bulkAddTransactions } = useTransactionStore()
+  const { updateSettings, onboardingCompleted, ...settings } = useSettingsStore()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [importing, setImporting] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
@@ -36,7 +38,7 @@ export default function DataPage() {
       showMessage('error', '내보낼 거래 데이터가 없습니다.')
       return
     }
-    exportToJSON(transactions)
+    exportToJSON(transactions, settings as Record<string, unknown>)
     showMessage('success', `${transactions.length}건의 거래를 JSON 파일로 내보냈습니다.`)
   }
 
@@ -65,6 +67,12 @@ export default function DataPage() {
       }
 
       importTransactions(result.transactions ?? [])
+
+      if (result.settings && typeof result.settings === 'object') {
+        const { onboardingCompleted: _ignored, ...restoredSettings } = result.settings as Record<string, unknown>
+        updateSettings(restoredSettings as Parameters<typeof updateSettings>[0])
+      }
+
       showMessage('success', `${result.transactionCount}건의 거래를 성공적으로 가져왔습니다.`)
     } finally {
       setImporting(false)

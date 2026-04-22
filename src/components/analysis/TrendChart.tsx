@@ -53,7 +53,7 @@ export default function TrendChart() {
         <LineChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
           <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-          <YAxis tickFormatter={formatYAxis} tick={{ fontSize: 11 }} width={50} />
+          <YAxis tickFormatter={formatYAxis} tick={{ fontSize: 11 }} width={72} />
           <Tooltip formatter={(value: number) => formatKRW(value)} />
           <Legend />
           <Line type="monotone" dataKey="매출" stroke="#3b82f6" strokeWidth={2} dot={false} />

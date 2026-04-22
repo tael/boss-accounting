@@ -53,7 +53,7 @@ export default function CashFlowChart() {
         <LineChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
           <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-          <YAxis tickFormatter={formatYAxis} tick={{ fontSize: 11 }} width={50} />
+          <YAxis tickFormatter={formatYAxis} tick={{ fontSize: 11 }} width={72} />
           <Tooltip formatter={(value: number) => formatTooltipValue(value)} />
           <Legend />
           <Line

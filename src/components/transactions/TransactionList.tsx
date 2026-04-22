@@ -41,12 +41,12 @@ export default function TransactionList({ transactions }: TransactionListProps) 
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-200 text-left text-xs text-gray-500">
-              <th className="pb-2 pr-4 font-medium">날짜</th>
-              <th className="pb-2 pr-4 font-medium">유형</th>
-              <th className="pb-2 pr-4 font-medium">카테고리</th>
-              <th className="pb-2 pr-4 font-medium">메모</th>
-              <th className="pb-2 pr-4 font-medium text-right">금액</th>
-              <th className="pb-2 font-medium text-right">관리</th>
+              <th scope="col" className="pb-2 pr-4 font-medium">날짜</th>
+              <th scope="col" className="pb-2 pr-4 font-medium">유형</th>
+              <th scope="col" className="pb-2 pr-4 font-medium">카테고리</th>
+              <th scope="col" className="pb-2 pr-4 font-medium">메모</th>
+              <th scope="col" className="pb-2 pr-4 font-medium text-right">금액</th>
+              <th scope="col" className="pb-2 font-medium text-right">관리</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
