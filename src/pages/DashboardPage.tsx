@@ -3,6 +3,7 @@ import { useTransactionStore } from '@/stores/transactionStore'
 import { useRecurringStore } from '@/stores/recurringStore'
 import MonthSummary from '@/components/dashboard/MonthSummary'
 import GoalWidget from '@/components/dashboard/GoalWidget'
+import HealthScoreWidget from '@/components/dashboard/HealthScoreWidget'
 import InsightCard from '@/components/dashboard/InsightCard'
 import { getUpcomingSchedule, getDDaySchedules } from '@/constants/taxSchedule'
 import type { TaxType } from '@/constants/taxSchedule'
@@ -43,6 +44,8 @@ export default function DashboardPage() {
       <MonthSummary />
 
       <GoalWidget />
+
+      <HealthScoreWidget />
 
       {/* D-Day 세무 일정 위젯 */}
       <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">

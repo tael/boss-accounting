@@ -296,6 +296,153 @@ export function getLastNMonths(n: number = 12): string[] {
   return months
 }
 
+/**
+ * 전년 동기(YoY) 비교 데이터 생성
+ * 최근 12개월과 전년 동기 12개월의 매출을 비교
+ */
+export function calculateYoYComparison(
+  transactions: Transaction[],
+): Array<{ month: string; thisYear: number; lastYear: number }> {
+  const months = getLastNMonths(12)
+  return months.map((ym) => {
+    const [y, m] = ym.split('-').map(Number)
+    const lastYearYm = `${y! - 1}-${String(m).padStart(2, '0')}`
+
+    const thisYearIncome = transactions
+      .filter((tx) => tx.type === 'income' && tx.date.startsWith(ym))
+      .reduce((sum, tx) => sum + tx.amountKRW, 0)
+
+    const lastYearIncome = transactions
+      .filter((tx) => tx.type === 'income' && tx.date.startsWith(lastYearYm))
+      .reduce((sum, tx) => sum + tx.amountKRW, 0)
+
+    return { month: ym, thisYear: thisYearIncome, lastYear: lastYearIncome }
+  })
+}
+
+export interface BusinessHealthResult {
+  score: number                  // 0-100
+  grade: 'danger' | 'warning' | 'good' | 'excellent'
+  profitabilityScore: number     // 0-40
+  stabilityScore: number         // 0-30
+  growthScore: number            // 0-30
+  summary: string
+  hasData: boolean               // 거래 데이터 유무
+}
+
+/**
+ * 사업 건강도 점수 계산 (0-100)
+ * - 수익성(40점): 이번 달 이익률 기준 (0% → 0, 10% → 20, 20% → 30, 30%+ → 40)
+ * - 안정성(30점): 최근 3개월 중 흑자 달 수 × 10점
+ * - 성장성(30점): 최근 2달 vs 이전 2달 매출 비교 (증가 30, 유지 15, 감소 0)
+ *
+ * 등급: 0-39 danger, 40-59 warning, 60-79 good, 80+ excellent
+ */
+export function calculateBusinessHealth(transactions: Transaction[]): BusinessHealthResult {
+  if (transactions.length === 0) {
+    return {
+      score: 0,
+      grade: 'danger',
+      profitabilityScore: 0,
+      stabilityScore: 0,
+      growthScore: 0,
+      summary: '거래를 입력하면 건강도를 측정할 수 있어요.',
+      hasData: false,
+    }
+  }
+
+  // 수익성(40점): 이번 달 이익률
+  const now = new Date()
+  const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  const thisMonthTxs = filterByMonth(transactions, thisMonth)
+  const thisMonthStatement = calculateIncomeStatement(thisMonthTxs, thisMonth)
+  const marginPct = thisMonthStatement.profitMarginPct
+
+  let profitabilityScore: number
+  if (marginPct >= 30) profitabilityScore = 40
+  else if (marginPct >= 20) profitabilityScore = 30
+  else if (marginPct >= 10) profitabilityScore = 20
+  else if (marginPct > 0) profitabilityScore = Math.round((marginPct / 10) * 20)
+  else profitabilityScore = 0
+
+  // 안정성(30점): 최근 3개월 중 흑자 달 수 × 10점
+  const last3Months = getLastNMonths(3)
+  let surplusCount = 0
+  for (const month of last3Months) {
+    const monthTxs = filterByMonth(transactions, month)
+    const stmt = calculateIncomeStatement(monthTxs, month)
+    if (stmt.netProfitKRW > 0) surplusCount++
+  }
+  const stabilityScore = surplusCount * 10
+
+  // 성장성(30점): 최근 2달 vs 이전 2달 매출 비교
+  const last4Months = getLastNMonths(4)
+  const prev2Revenue = last4Months.slice(0, 2).reduce((sum, m) => {
+    return (
+      sum +
+      filterByMonth(transactions, m)
+        .filter((tx) => tx.type === 'income')
+        .reduce((s, tx) => s + tx.amountKRW, 0)
+    )
+  }, 0)
+  const recent2Revenue = last4Months.slice(2, 4).reduce((sum, m) => {
+    return (
+      sum +
+      filterByMonth(transactions, m)
+        .filter((tx) => tx.type === 'income')
+        .reduce((s, tx) => s + tx.amountKRW, 0)
+    )
+  }, 0)
+
+  let growthScore: number
+  if (prev2Revenue === 0 && recent2Revenue === 0) {
+    growthScore = 0
+  } else if (prev2Revenue === 0) {
+    // 이전엔 매출이 없다가 최근에 생긴 경우 → 증가로 간주
+    growthScore = 30
+  } else {
+    const changePct = ((recent2Revenue - prev2Revenue) / prev2Revenue) * 100
+    if (changePct > 5) growthScore = 30
+    else if (changePct >= -5) growthScore = 15
+    else growthScore = 0
+  }
+
+  const score = profitabilityScore + stabilityScore + growthScore
+
+  let grade: BusinessHealthResult['grade']
+  if (score >= 80) grade = 'excellent'
+  else if (score >= 60) grade = 'good'
+  else if (score >= 40) grade = 'warning'
+  else grade = 'danger'
+
+  let summary: string
+  switch (grade) {
+    case 'excellent':
+      summary = '매우 건강한 상태예요. 지금 흐름을 유지해보세요.'
+      break
+    case 'good':
+      summary = '양호한 상태예요. 조금 더 신경쓰면 우수 단계로 올라갈 수 있어요.'
+      break
+    case 'warning':
+      summary = '주의가 필요해요. 수익성 또는 안정성을 점검해보세요.'
+      break
+    case 'danger':
+    default:
+      summary = '위험 신호예요. 비용 구조와 매출 흐름을 바로 점검해야 해요.'
+      break
+  }
+
+  return {
+    score,
+    grade,
+    profitabilityScore,
+    stabilityScore,
+    growthScore,
+    summary,
+    hasData: true,
+  }
+}
+
 export interface BreakEvenResult {
   bepRevenue: number | null   // null이면 계산 불가
   variableRatio: number       // 변동비율 (0-1)
