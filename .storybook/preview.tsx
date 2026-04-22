@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import type { Preview } from '@storybook/react-vite'
 import '../src/index.css'
 import './toss-tokens.css'
@@ -9,9 +9,20 @@ const preview: Preview = {
       const layout = context.parameters?.layout
       const isFullscreen = layout === 'fullscreen'
 
+      useEffect(() => {
+        document.body.style.backgroundColor = '#f2f4f6'
+        document.documentElement.style.backgroundColor = '#f2f4f6'
+      }, [])
+
       if (isFullscreen) {
         return <Story />
       }
+
+      const isWide = context.title?.includes('차트') ||
+                     context.title?.includes('Chart') ||
+                     context.title?.includes('분석') ||
+                     context.title?.includes('재무') ||
+                     context.title?.includes('거래')
 
       return (
         <div style={{
@@ -34,7 +45,7 @@ const preview: Preview = {
             boxShadow: '0 2px 8px rgba(0,23,51,0.06), 0 8px 24px rgba(0,23,51,0.04)',
             border: '1px solid #e5e8eb',
             width: '100%',
-            maxWidth: '480px',
+            maxWidth: isWide ? '720px' : '480px',
             display: 'flex',
             flexDirection: 'column' as const,
             alignItems: 'center',
