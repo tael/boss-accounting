@@ -125,3 +125,31 @@ button, input, select, textarea {
 .sb-main-centered {
   background: #f2f4f6 !important;
 }
+
+/* ── 최종 폴리시 ────────────────────────────────────────── */
+
+/* 선택된 사이드바 항목 강조 개선 */
+.sidebar-item[data-selected="true"],
+.sidebar-item.selected {
+  background: #e8f3ff !important;  /* toss-blue-50 */
+  color: #3182f6 !important;
+  font-weight: 600 !important;
+}
+
+/* Controls 패널 폰트 */
+.docblock-argstable td,
+.docblock-argstable th {
+  font-family: 'Pretendard', -apple-system, sans-serif !important;
+  font-size: 13px !important;
+}
+
+/* 탭(Controls/Actions 등) 스타일 */
+.tabbutton {
+  font-family: 'Pretendard', -apple-system, sans-serif !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* 툴바 버튼 hover */
+button[title]:hover {
+  color: #3182f6 !important;
+}

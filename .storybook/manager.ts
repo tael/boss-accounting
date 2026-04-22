@@ -6,6 +6,7 @@ const theme = create({
   brandTitle: '사장님 회계 도우미',
   brandUrl: 'https://github.com/tael/boss-accounting',
   brandTarget: '_self',
+  brandImage: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" rx="10" fill="%233182f6"/><text x="50%25" y="55%25" dominant-baseline="middle" text-anchor="middle" fill="white" font-size="20" font-family="sans-serif">🧾</text></svg>',
 
   colorPrimary: '#3182f6',
   colorSecondary: '#0064FF',
