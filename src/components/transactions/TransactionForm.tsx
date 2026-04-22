@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useTransactionStore } from '@/stores/transactionStore'
 import { validateTransaction, getFieldError } from '@/utils/validation'
 import { getTodayLocal } from '@/utils/format'
@@ -18,6 +18,9 @@ export default function TransactionForm({
 }: TransactionFormProps) {
   const { addTransaction, updateTransaction } = useTransactionStore()
   const isEdit = Boolean(initialData?.id)
+
+  const isMounted = useRef(true)
+  useEffect(() => () => { isMounted.current = false }, [])
 
   const [type, setType] = useState<TransactionType>(initialData?.type ?? 'income')
   const [date, setDate] = useState(() => initialData?.date ?? getTodayLocal())
@@ -65,7 +68,7 @@ export default function TransactionForm({
       }
       onSuccess?.()
     } finally {
-      setSubmitting(false)
+      if (isMounted.current) setSubmitting(false)
     }
   }
 

@@ -44,7 +44,9 @@ export default function IncomeTaxCalc() {
     const num = parseKRW(value)
     setDeductions((prev) => ({
       ...prev,
-      [field]: isNaN(num) ? 0 : Math.max(0, num),
+      [field]: field === 'dependents'
+        ? Math.max(1, isNaN(num) ? 1 : num)
+        : isNaN(num) ? 0 : Math.max(0, num),
     }))
   }
 

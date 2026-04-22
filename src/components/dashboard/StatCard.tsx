@@ -18,6 +18,7 @@ function formatValue(value: number, format: 'krw' | 'percent' | 'count'): string
 
 export default function StatCard({ title, value, previousValue, format, refKey }: StatCardProps) {
   const hasComparison = previousValue !== undefined && previousValue !== null
+  const isNewRecord = hasComparison && previousValue === 0 && value > 0
   const changeRate =
     hasComparison && previousValue !== 0
       ? ((value - previousValue) / Math.abs(previousValue)) * 100
@@ -42,7 +43,15 @@ export default function StatCard({ title, value, previousValue, format, refKey }
           <span className="text-xs text-gray-400">전월 대비</span>
         </div>
       )}
-      {!hasComparison && <div className="mt-2 h-5" />}
+      {isNewRecord && (
+        <div className="mt-2 flex items-center gap-1">
+          <span className="text-sm font-medium text-green-600">
+            ● 신규
+          </span>
+          <span className="text-xs text-gray-400">전월 기준</span>
+        </div>
+      )}
+      {!hasComparison && !isNewRecord && <div className="mt-2 h-5" />}
     </div>
   )
 }

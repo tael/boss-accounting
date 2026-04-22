@@ -7,7 +7,7 @@ import { useTransactionStore } from '@/stores/transactionStore'
 
 export default function VatCalculator() {
   const taxType = useSettingsStore((s) => s.taxType)
-  const getFiltered = useTransactionStore((s) => s.getFiltered)
+  const transactions = useTransactionStore((s) => s.transactions)
 
   const isSimplified = taxType === 'simplified'
 
@@ -24,8 +24,7 @@ export default function VatCalculator() {
     const now = new Date()
     const year = now.getFullYear()
     const quarter = Math.floor(now.getMonth() / 3) + 1
-    const allTxs = getFiltered({})
-    const txs = filterByQuarter(allTxs, year, quarter)
+    const txs = filterByQuarter(transactions, year, quarter)
     const { totalRevenue, totalDeductible } = summarizeForVat(txs)
 
     if (isSimplified) {

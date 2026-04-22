@@ -20,7 +20,13 @@ export function waitForGoogleIdentityServices(): Promise<void> {
       'script[src*="accounts.google.com/gsi/client"]'
     )
 
+    let settled = false
+
     const onLoad = () => {
+      if (settled) return
+      settled = true
+      existingScript?.removeEventListener('load', onLoad)
+      existingScript?.removeEventListener('error', onError)
       if (window.google?.accounts?.oauth2) {
         resolve()
       } else {
@@ -28,14 +34,20 @@ export function waitForGoogleIdentityServices(): Promise<void> {
       }
     }
 
+    const onError = () => {
+      if (settled) return
+      settled = true
+      existingScript?.removeEventListener('load', onLoad)
+      existingScript?.removeEventListener('error', onError)
+      reject(new Error('GIS 스크립트 로드 오류'))
+    }
+
     if (existingScript) {
       if (existingScript.dataset['loaded']) {
         onLoad()
       } else {
         existingScript.addEventListener('load', onLoad)
-        existingScript.addEventListener('error', () =>
-          reject(new Error('GIS 스크립트 로드 오류'))
-        )
+        existingScript.addEventListener('error', onError)
       }
     } else {
       // 스크립트가 없으면 직접 삽입
@@ -43,18 +55,39 @@ export function waitForGoogleIdentityServices(): Promise<void> {
       script.src = 'https://accounts.google.com/gsi/client'
       script.async = true
       script.defer = true
-      script.addEventListener('load', () => {
+
+      const onNewLoad = () => {
+        if (settled) return
+        settled = true
+        script.removeEventListener('load', onNewLoad)
+        script.removeEventListener('error', onNewError)
         script.dataset['loaded'] = 'true'
-        onLoad()
-      })
-      script.addEventListener('error', () =>
+        if (window.google?.accounts?.oauth2) {
+          resolve()
+        } else {
+          reject(new Error('Google Identity Services 로드 실패'))
+        }
+      }
+
+      const onNewError = () => {
+        if (settled) return
+        settled = true
+        script.removeEventListener('load', onNewLoad)
+        script.removeEventListener('error', onNewError)
         reject(new Error('GIS 스크립트 로드 오류'))
-      )
+      }
+
+      script.addEventListener('load', onNewLoad)
+      script.addEventListener('error', onNewError)
       document.head.appendChild(script)
     }
 
     // 10초 타임아웃
-    setTimeout(() => reject(new Error('GIS 로드 타임아웃 (10초)')), 10_000)
+    setTimeout(() => {
+      if (settled) return
+      settled = true
+      reject(new Error('GIS 로드 타임아웃 (10초)'))
+    }, 10_000)
   })
 }
 
