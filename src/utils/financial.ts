@@ -487,6 +487,29 @@ export function calculateBreakEven(
   return { bepRevenue: Math.ceil(raw), variableRatio, isInfeasible: false }
 }
 
+/**
+ * 전월 대비 카테고리별 지출 비교
+ */
+export function calculateMonthlyExpenseComparison(
+  transactions: Transaction[],
+): Array<{ category: string; thisMonth: number; lastMonth: number; changeRate: number }> {
+  const now = new Date()
+  const thisYm = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  const lastDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+  const lastYm = `${lastDate.getFullYear()}-${String(lastDate.getMonth() + 1).padStart(2, '0')}`
+
+  return EXPENSE_CATEGORIES.map((cat) => {
+    const thisMonth = transactions
+      .filter((tx) => tx.type === 'expense' && tx.categoryId === cat.id && tx.date.startsWith(thisYm))
+      .reduce((sum, tx) => sum + tx.amountKRW, 0)
+    const lastMonth = transactions
+      .filter((tx) => tx.type === 'expense' && tx.categoryId === cat.id && tx.date.startsWith(lastYm))
+      .reduce((sum, tx) => sum + tx.amountKRW, 0)
+    const changeRate = lastMonth > 0 ? ((thisMonth - lastMonth) / lastMonth) * 100 : 0
+    return { category: cat.name, thisMonth, lastMonth, changeRate }
+  }).filter((item) => item.thisMonth > 0 || item.lastMonth > 0)
+}
+
 export interface CostStructure {
   avgFixedCost: number
   avgVariableCost: number
