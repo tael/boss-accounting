@@ -296,6 +296,50 @@ export function getLastNMonths(n: number = 12): string[] {
   return months
 }
 
+export interface BreakEvenResult {
+  bepRevenue: number | null   // null이면 계산 불가
+  variableRatio: number       // 변동비율 (0-1)
+  isInfeasible: boolean       // true이면 BEP 달성 불가 (변동비율 >= 1)
+}
+
+/**
+ * 손익분기점(BEP) 매출액 계산
+ * 공식: BEP = 고정비 / (1 - 변동비율), 변동비율 = 변동비 / 매출
+ * revenueKRW가 0이면 변동비율을 (변동비 / (고정비 + 변동비))로 추정 (직접 입력 모드 대응)
+ * @param fixedCostKRW  고정비 (원)
+ * @param variableCostKRW  변동비 (원)
+ * @param revenueKRW  기준 매출 (원, 0이면 추정 모드)
+ * @returns BreakEvenResult
+ */
+export function calculateBreakEven(
+  fixedCostKRW: number,
+  variableCostKRW: number,
+  revenueKRW: number = 0,
+): BreakEvenResult {
+  if (fixedCostKRW <= 0) {
+    return { bepRevenue: null, variableRatio: 0, isInfeasible: false }
+  }
+
+  let variableRatio: number
+  if (revenueKRW > 0) {
+    variableRatio = variableCostKRW / revenueKRW
+  } else {
+    const totalCost = fixedCostKRW + variableCostKRW
+    variableRatio = totalCost > 0 ? variableCostKRW / totalCost : 0
+  }
+
+  if (variableRatio >= 1) {
+    return { bepRevenue: null, variableRatio, isInfeasible: true }
+  }
+
+  const raw = fixedCostKRW / (1 - variableRatio)
+  if (!isFinite(raw) || isNaN(raw) || raw < 0) {
+    return { bepRevenue: null, variableRatio, isInfeasible: raw < 0 }
+  }
+
+  return { bepRevenue: Math.ceil(raw), variableRatio, isInfeasible: false }
+}
+
 export interface CostStructure {
   avgFixedCost: number
   avgVariableCost: number
@@ -315,13 +359,8 @@ export function calculateCostStructure(
     return { avgFixedCost: 0, avgVariableCost: 0, avgRevenue: 0, monthRange: { from: '', to: '' } }
   }
 
-  // 모든 거래에서 YYYY-MM 추출 후 최근 N개월 선택
-  const allMonths = Array.from(new Set(transactions.map((tx) => tx.date.slice(0, 7)))).sort()
-  const targetMonths = allMonths.slice(-months)
-
-  if (targetMonths.length === 0) {
-    return { avgFixedCost: 0, avgVariableCost: 0, avgRevenue: 0, monthRange: { from: '', to: '' } }
-  }
+  // 현재 날짜 기준 최근 N개월 (활동 없는 달도 포함, 빈 달은 0원으로 집계)
+  const targetMonths = getLastNMonths(months)
 
   // costType 조회 맵: categoryId → 'fixed' | 'variable' | 'semi'
   const costTypeMap = new Map(

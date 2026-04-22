@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { formatKRW, parseKRW } from '@/utils/format'
 import { useTransactionStore } from '@/stores/transactionStore'
-import { calculateCostStructure } from '@/utils/financial'
+import { calculateCostStructure, calculateBreakEven } from '@/utils/financial'
 
 export default function BreakEvenCalc() {
   const transactions = useTransactionStore((s) => s.transactions)
@@ -13,20 +13,12 @@ export default function BreakEvenCalc() {
   const fixedCostKRW = parseKRW(fixedCost) || 0
   const variableCostKRW = parseKRW(variableCost) || 0
 
-  // BEP 매출 기준 계산: BEP매출 = 고정비 / (1 - 변동비율)
-  // 변동비율 = 변동비 / 매출 (매출 0이면 변동비/고정비 비율로 추정, 직접 입력 모드에선 0)
-  // 직접 입력 모드: 변동비율 = variableCostKRW / (fixedCostKRW + variableCostKRW) (매출 미입력 시)
-  const totalCost = fixedCostKRW + variableCostKRW
-  const variableRatio = totalCost > 0 ? variableCostKRW / totalCost : 0
-  const canCalculate = fixedCostKRW > 0 && variableRatio < 1
-
-  const rawBep = canCalculate ? fixedCostKRW / (1 - variableRatio) : null
-  const bepRevenue =
-    rawBep === null || !isFinite(rawBep) || isNaN(rawBep)
-      ? null
-      : rawBep < 0
-        ? -1  // sentinel: 음수 BEP
-        : Math.ceil(rawBep)
+  const { bepRevenue: rawBepRevenue, variableRatio, isInfeasible } = calculateBreakEven(
+    fixedCostKRW,
+    variableCostKRW,
+  )
+  const canCalculate = fixedCostKRW > 0
+  const bepRevenue = isInfeasible ? -1 : rawBepRevenue
 
   function handleAutoLoad() {
     const result = calculateCostStructure(transactions, 3)
@@ -104,9 +96,7 @@ export default function BreakEvenCalc() {
         </div>
       ) : (
         <div className="bg-gray-50 rounded-lg p-4 text-center text-sm text-gray-400">
-          {fixedCostKRW > 0 && variableRatio >= 1
-            ? '변동비가 총비용을 초과하면 계산이 어렵습니다.'
-            : '값을 입력하면 자동 계산됩니다.'}
+          값을 입력하면 자동 계산됩니다.
         </div>
       )}
     </div>
