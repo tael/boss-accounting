@@ -12,6 +12,12 @@ const config: StorybookConfig = {
     "@storybook/addon-docs",
     "@storybook/addon-mcp"
   ],
-  "framework": "@storybook/react-vite"
+  "framework": "@storybook/react-vite",
+  core: {
+    disableTelemetry: true,
+  },
+  features: {
+    viewportStoryGlobals: true,
+  },
 };
 export default config;

@@ -7,7 +7,7 @@ const meta: Meta<typeof ExpensePieChart> = {
   component: ExpensePieChart,
   tags: ['autodocs'],
   parameters: {
-    layout: 'centered',
+    layout: 'padded',
   },
   decorators: [
     (Story) => (

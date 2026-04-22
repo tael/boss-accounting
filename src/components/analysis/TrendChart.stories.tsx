@@ -7,7 +7,7 @@ const meta: Meta<typeof TrendChart> = {
   component: TrendChart,
   tags: ['autodocs'],
   parameters: {
-    layout: 'centered',
+    layout: 'padded',
   },
   decorators: [
     (Story) => (

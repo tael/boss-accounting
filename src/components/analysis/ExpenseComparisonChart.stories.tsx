@@ -7,7 +7,7 @@ const meta: Meta<typeof ExpenseComparisonChart> = {
   component: ExpenseComparisonChart,
   tags: ['autodocs'],
   parameters: {
-    layout: 'centered',
+    layout: 'padded',
   },
   decorators: [
     (Story) => (

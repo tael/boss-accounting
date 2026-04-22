@@ -110,3 +110,18 @@ button, input, select, textarea {
   font-family: var(--toss-font) !important;
   letter-spacing: var(--toss-tracking) !important;
 }
+
+/* Storybook 10 canvas 강제 배경 */
+.sb-wrapper,
+.sb-preparing-story,
+.sb-preparing-docs,
+[data-side="story"] iframe,
+#storybook-preview-wrapper {
+  background: #f2f4f6 !important;
+}
+
+/* 캔버스 내부 여백 영역 */
+.sb-main-padded,
+.sb-main-centered {
+  background: #f2f4f6 !important;
+}

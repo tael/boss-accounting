@@ -7,7 +7,7 @@ const meta: Meta<typeof YoYChart> = {
   component: YoYChart,
   tags: ['autodocs'],
   parameters: {
-    layout: 'centered',
+    layout: 'padded',
   },
   decorators: [
     (Story) => (
