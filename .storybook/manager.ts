@@ -5,43 +5,35 @@ const theme = create({
   base: 'light',
   brandTitle: '사장님 회계 도우미',
   brandUrl: 'https://github.com/tael/boss-accounting',
-  brandImage: undefined,
   brandTarget: '_self',
 
-  // 앱 브랜드 컬러 (에메랄드 초록)
-  colorPrimary: '#10b981',
-  colorSecondary: '#059669',
+  colorPrimary: '#3182f6',
+  colorSecondary: '#0064FF',
 
-  // UI
-  appBg: '#f9fafb',
+  appBg: '#f2f4f6',
   appContentBg: '#ffffff',
-  appPreviewBg: '#ffffff',
-  appBorderColor: '#e5e7eb',
-  appBorderRadius: 12,
+  appPreviewBg: '#f2f4f6',
+  appBorderColor: '#e5e8eb',
+  appBorderRadius: 8,
 
-  // 폰트
-  fontBase: '"Pretendard", "Apple SD Gothic Neo", sans-serif',
-  fontCode: 'monospace',
+  fontBase: '"Pretendard", "Apple SD Gothic Neo", -apple-system, sans-serif',
+  fontCode: '"SF Mono", "Fira Code", monospace',
 
-  // 텍스트
-  textColor: '#1f2937',
+  textColor: '#191f28',
   textInverseColor: '#ffffff',
-  textMutedColor: '#6b7280',
+  textMutedColor: '#8b95a1',
 
-  // 툴바
-  barTextColor: '#6b7280',
-  barHoverColor: '#10b981',
-  barSelectedColor: '#10b981',
+  barTextColor: '#4e5968',
+  barHoverColor: '#3182f6',
+  barSelectedColor: '#3182f6',
   barBg: '#ffffff',
 
-  // 버튼
-  buttonBg: '#f3f4f6',
-  buttonBorder: '#e5e7eb',
+  buttonBg: '#f2f4f6',
+  buttonBorder: '#e5e8eb',
 
-  // 입력
   inputBg: '#ffffff',
-  inputBorder: '#e5e7eb',
-  inputTextColor: '#1f2937',
+  inputBorder: '#e5e8eb',
+  inputTextColor: '#191f28',
   inputBorderRadius: 8,
 })
 
