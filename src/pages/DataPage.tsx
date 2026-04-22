@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { useTransactionStore } from '@/stores/transactionStore'
 import { useSettingsStore } from '@/stores/settingsStore'
-import { exportToJSON, importFromJSON } from '@/utils/exportImport'
+import { exportToJSON, exportToCSV, importFromJSON } from '@/utils/exportImport'
 import { buildSampleTransactions } from '@/utils/sampleData'
 import GoogleDriveBackup from '@/components/data/GoogleDriveBackup'
 import { ErrorBoundary } from '@/components/common/ErrorBoundary'
@@ -41,6 +41,15 @@ export default function DataPage() {
     }
     exportToJSON(transactions, settings as Record<string, unknown>)
     showMessage('success', `${transactions.length}건의 거래를 JSON 파일로 내보냈습니다.`)
+  }
+
+  const handleExportCSV = () => {
+    if (transactions.length === 0) {
+      showMessage('error', '내보낼 거래 데이터가 없습니다.')
+      return
+    }
+    exportToCSV(transactions)
+    showMessage('success', `${transactions.length}건의 거래를 CSV 파일로 내보냈습니다.`)
   }
 
   const handleImportClick = () => {
@@ -165,6 +174,23 @@ export default function DataPage() {
         >
           <span>⬇️</span>
           JSON 파일로 내보내기
+        </button>
+      </div>
+
+      {/* CSV 내보내기 */}
+      <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
+        <h2 className="text-sm font-semibold text-gray-700">CSV 내보내기</h2>
+        <p className="text-xs text-gray-500">
+          거래 데이터를 Excel에서 열 수 있는 CSV 파일로 내보냅니다. 날짜순으로 정렬되며 한글
+          인코딩(BOM)이 적용되어 있습니다.
+        </p>
+        <button
+          type="button"
+          onClick={handleExportCSV}
+          className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 transition-colors"
+        >
+          <span>📊</span>
+          CSV 파일로 내보내기
         </button>
       </div>
 

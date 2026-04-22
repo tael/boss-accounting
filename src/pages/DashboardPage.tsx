@@ -1,9 +1,11 @@
 import { useEffect, useMemo } from 'react'
 import { useTransactionStore } from '@/stores/transactionStore'
 import { useRecurringStore } from '@/stores/recurringStore'
+import { useSettingsStore } from '@/stores/settingsStore'
 import MonthSummary from '@/components/dashboard/MonthSummary'
 import GoalWidget from '@/components/dashboard/GoalWidget'
 import HealthScoreWidget from '@/components/dashboard/HealthScoreWidget'
+import OnboardingQuest from '@/components/dashboard/OnboardingQuest'
 import InsightCard from '@/components/dashboard/InsightCard'
 import { getUpcomingSchedule, getDDaySchedules } from '@/constants/taxSchedule'
 import type { TaxType } from '@/constants/taxSchedule'
@@ -21,6 +23,7 @@ export default function DashboardPage() {
   const transactions = useTransactionStore((s) => s.transactions)
   const addTransaction = useTransactionStore((s) => s.addTransaction)
   const applyDueTemplates = useRecurringStore((s) => s.applyDueTemplates)
+  const { onboardingCompleted, questCompleted } = useSettingsStore()
 
   // 대시보드 마운트 시 반복 거래 템플릿 자동 적용 (오늘 기준 이번 달 미적용 항목만)
   useEffect(() => {
@@ -44,6 +47,8 @@ export default function DashboardPage() {
       <MonthSummary />
 
       <GoalWidget />
+
+      {!onboardingCompleted && questCompleted.length < 5 && <OnboardingQuest />}
 
       <HealthScoreWidget />
 

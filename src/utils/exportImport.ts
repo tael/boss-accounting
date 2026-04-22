@@ -5,6 +5,7 @@
  */
 
 import type { Transaction } from '@/types/transaction'
+import { getCategoryName } from '@/constants/categories'
 
 /** 내보내기 데이터 구조 */
 export interface ExportData {
@@ -61,6 +62,31 @@ export function exportToJSON(
   anchor.click()
 
   // 메모리 누수 방지
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
+/**
+ * 데이터를 CSV 파일로 내보내기 (Excel 한글 호환)
+ */
+export function exportToCSV(transactions: Transaction[]): void {
+  const header = '날짜,유형,금액(원),카테고리,메모,부가세공제'
+  const rows = transactions
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .map((tx) => {
+      const type = tx.type === 'income' ? '매출' : '비용'
+      const category = getCategoryName(tx.categoryId)
+      const memo = (tx.memo ?? '').replace(/,/g, '，') // 전각 쉼표로 치환
+      const vat = tx.type === 'expense' ? (tx.isVatDeductible !== false ? 'Y' : 'N') : '-'
+      return `${tx.date},${type},${tx.amountKRW},${category},${memo},${vat}`
+    })
+  const csv = '﻿' + [header, ...rows].join('\n') // BOM for Excel Korean
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const today = new Date().toISOString().slice(0, 10)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `boss-accounting-${today}.csv`
+  a.click()
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 

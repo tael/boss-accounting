@@ -1,4 +1,5 @@
 import BreakEvenCalc from '@/components/analysis/BreakEvenCalc'
+import BudgetTracker from '@/components/analysis/BudgetTracker'
 import ExpensePieChart from '@/components/analysis/ExpensePieChart'
 import TrendChart from '@/components/analysis/TrendChart'
 import YoYChart from '@/components/analysis/YoYChart'
@@ -65,6 +66,16 @@ export default function AnalysisPage() {
             참고: 챕터 {yoyRef.chapter} — {yoyRef.title}
           </p>
         </div>
+      </ErrorBoundary>
+
+      <ErrorBoundary
+        fallback={
+          <div className="bg-white rounded-xl border border-red-200 p-5 text-center text-sm text-red-400">
+            예산 트래커를 불러오는 중 오류가 발생했습니다.
+          </div>
+        }
+      >
+        <BudgetTracker />
       </ErrorBoundary>
     </div>
   )

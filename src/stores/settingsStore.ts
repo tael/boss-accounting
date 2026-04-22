@@ -30,6 +30,10 @@ export interface Settings {
   monthlyProfitGoalKRW: number
   /** 절세 체크리스트 완료 항목 ID 목록 */
   taxSavingChecklist: string[]
+  /** 온보딩 퀘스트 완료 항목 */
+  questCompleted: string[]
+  /** 카테고리별 월 예산 한도 (categoryId → 원) */
+  categoryBudgets: Record<string, number>
 }
 
 const DEFAULT_SETTINGS: Settings = {
@@ -41,6 +45,8 @@ const DEFAULT_SETTINGS: Settings = {
   onboardingCompleted: false,
   monthlyProfitGoalKRW: 0,
   taxSavingChecklist: [],
+  questCompleted: [],
+  categoryBudgets: {},
 }
 
 interface SettingsState extends Settings {
