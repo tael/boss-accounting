@@ -9,24 +9,39 @@ const preview: Preview = {
       const layout = context.parameters?.layout
       const isFullscreen = layout === 'fullscreen'
 
+      if (isFullscreen) {
+        return <Story />
+      }
+
       return (
-        <div
-          style={{
-            background: '#f2f4f6',
-            minHeight: '100vh',
+        <div style={{
+          background: '#f2f4f6',
+          minHeight: '100vh',
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '40px 24px',
+          boxSizing: 'border-box' as const,
+          fontFamily: '"Pretendard", -apple-system, "Apple SD Gothic Neo", sans-serif',
+          letterSpacing: '-0.02em',
+          WebkitFontSmoothing: 'antialiased' as const,
+        }}>
+          <div style={{
+            background: '#ffffff',
+            borderRadius: '16px',
+            padding: '32px',
+            boxShadow: '0 2px 8px rgba(0,23,51,0.06), 0 8px 24px rgba(0,23,51,0.04)',
+            border: '1px solid #e5e8eb',
             width: '100%',
+            maxWidth: '480px',
             display: 'flex',
-            flexDirection: 'column',
-            alignItems: isFullscreen ? 'stretch' : 'center',
-            justifyContent: isFullscreen ? 'flex-start' : 'center',
-            padding: isFullscreen ? 0 : '32px 24px',
-            fontFamily: '"Pretendard", -apple-system, "Apple SD Gothic Neo", sans-serif',
-            letterSpacing: '-0.02em',
-            WebkitFontSmoothing: 'antialiased',
-            boxSizing: 'border-box',
-          }}
-        >
-          <Story />
+            flexDirection: 'column' as const,
+            alignItems: 'center',
+            gap: '16px',
+          }}>
+            <Story />
+          </div>
         </div>
       )
     },

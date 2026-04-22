@@ -55,7 +55,12 @@
 
 /* ── Storybook Preview (iframe body) ──────────────────────
    body를 직접 타겟팅해야 Storybook backgrounds addon을 덮음 */
-body {
+/* iframe 내부 전체 배경 강제 */
+html {
+  background-color: #f2f4f6 !important;
+}
+
+html, body {
   background-color: var(--toss-bg) !important;
   font-family: var(--toss-font) !important;
   letter-spacing: var(--toss-tracking) !important;
@@ -67,7 +72,11 @@ body {
 }
 
 /* ── Story 캔버스 영역 ───────────────────────────────────── */
-#storybook-root,
+/* Storybook root 덮어쓰기 */
+#storybook-root {
+  background: transparent !important;
+}
+
 .sb-show-main,
 .sb-main-padded {
   background-color: var(--toss-bg) !important;
