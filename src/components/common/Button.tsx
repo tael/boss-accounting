@@ -42,7 +42,7 @@ export function Button({
       {...props}
       disabled={isDisabled}
       className={[
-        'inline-flex items-center justify-center gap-2 font-medium transition-colors cursor-pointer',
+        'inline-flex items-center justify-center gap-2 font-medium transition-colors cursor-pointer active:scale-[0.97] transition-transform duration-150 ease-out hover:brightness-105',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1',
         'disabled:cursor-not-allowed',
         variantClasses[variant],
