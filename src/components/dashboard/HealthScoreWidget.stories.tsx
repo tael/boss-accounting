@@ -149,8 +149,6 @@ export const GoodScore: Story = {
 export const ExcellentScore: Story = {
   name: '우수 (90점)',
   render: () => {
-    const now = new Date()
-
     // 지난 4개월 거래 생성
     const transactions = []
     for (let month = 0; month < 4; month++) {

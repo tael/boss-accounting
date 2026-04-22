@@ -1,7 +1,12 @@
 import { useState, useMemo } from 'react'
 import { calculateLaborCost, calculateTrueLaborCost } from '@/utils/tax'
+import type { LaborCostResult, TrueLaborCostResult } from '@/utils/tax'
 import { formatKRW, parseKRW } from '@/utils/format'
 import { useTransactionStore } from '@/stores/transactionStore'
+
+function isTrueLaborCost(result: LaborCostResult | TrueLaborCostResult): result is TrueLaborCostResult {
+  return 'trueMonthlyCost' in result
+}
 
 export default function LaborCalc() {
   const [hourlyWageInput, setHourlyWageInput] = useState('')
@@ -12,14 +17,14 @@ export default function LaborCalc() {
 
   const hourlyWage = parseKRW(hourlyWageInput) || 0
 
-  const result = useMemo(() => {
+  const result = useMemo((): LaborCostResult | TrueLaborCostResult | null => {
     if (hourlyWage <= 0 || weeklyHours <= 0) return null
     return includeInsurance
       ? calculateTrueLaborCost(hourlyWage, weeklyHours)
       : calculateLaborCost(hourlyWage, weeklyHours)
   }, [hourlyWage, weeklyHours, includeInsurance])
 
-  const trueResult = includeInsurance && result && 'trueMonthlyCost' in result ? result : null
+  const trueResult = result && isTrueLaborCost(result) ? result : null
 
   function handleRegister() {
     if (!result) return
