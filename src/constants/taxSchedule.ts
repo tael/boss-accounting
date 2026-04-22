@@ -112,6 +112,25 @@ export function getScheduleByMonth(month: string): TaxScheduleItem[] {
 }
 
 /**
+ * 세무 일정 D-Day 계산 (오늘 기준)
+ * periodEnd 형식: "MM-DD" → 올해 날짜 기준
+ */
+export function getDDaySchedules(): Array<TaxScheduleItem & { dday: number }> {
+  const today = new Date()
+  const year = today.getFullYear()
+
+  return TAX_SCHEDULE.map((item) => {
+    const [mm, dd] = item.periodEnd.split('-').map(Number)
+    let due = new Date(year, mm! - 1, dd!)
+    if (due < today) due = new Date(year + 1, mm! - 1, dd!)
+    const dday = Math.ceil((due.getTime() - today.setHours(0, 0, 0, 0)) / 86_400_000)
+    return { ...item, dday }
+  })
+    .sort((a, b) => a.dday - b.dday)
+    .slice(0, 3)
+}
+
+/**
  * 다가오는 신고 일정 조회 (현재 월 및 다음 달 기준)
  */
 export function getUpcomingSchedule(): typeof TAX_SCHEDULE {

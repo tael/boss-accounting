@@ -1,8 +1,10 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useTransactionStore } from '@/stores/transactionStore'
+import { useRecurringStore } from '@/stores/recurringStore'
 import MonthSummary from '@/components/dashboard/MonthSummary'
+import GoalWidget from '@/components/dashboard/GoalWidget'
 import InsightCard from '@/components/dashboard/InsightCard'
-import { getUpcomingSchedule } from '@/constants/taxSchedule'
+import { getUpcomingSchedule, getDDaySchedules } from '@/constants/taxSchedule'
 import type { TaxType } from '@/constants/taxSchedule'
 import { BOOK_REFERENCES } from '@/constants/bookReferences'
 import { formatKRW } from '@/utils/format'
@@ -16,6 +18,13 @@ const TYPE_LABEL: Record<TaxType, string> = {
 
 export default function DashboardPage() {
   const transactions = useTransactionStore((s) => s.transactions)
+  const addTransaction = useTransactionStore((s) => s.addTransaction)
+  const applyDueTemplates = useRecurringStore((s) => s.applyDueTemplates)
+
+  // 대시보드 마운트 시 반복 거래 템플릿 자동 적용 (오늘 기준 이번 달 미적용 항목만)
+  useEffect(() => {
+    applyDueTemplates(addTransaction)
+  }, [applyDueTemplates, addTransaction])
 
   const recentTransactions = useMemo(() => {
     return [...transactions]
@@ -24,6 +33,7 @@ export default function DashboardPage() {
   }, [transactions])
 
   const upcomingSchedule = useMemo(() => getUpcomingSchedule(), [])
+  const ddaySchedules = useMemo(() => getDDaySchedules(), [])
   const taxRef = BOOK_REFERENCES['dashboard.taxSchedule']
 
   return (
@@ -31,6 +41,41 @@ export default function DashboardPage() {
       <h1 className="text-xl font-bold text-gray-900">대시보드</h1>
 
       <MonthSummary />
+
+      <GoalWidget />
+
+      {/* D-Day 세무 일정 위젯 */}
+      <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+        <h2 className="text-base font-semibold text-gray-800 mb-3">다가오는 세무 일정</h2>
+        <div className="space-y-2">
+          {ddaySchedules.map((item) => {
+            const ddayLabel = item.dday === 0 ? 'D-Day' : `D-${item.dday}`
+            const colorClass =
+              item.dday <= 7
+                ? 'bg-red-50 border-red-200 text-red-700'
+                : item.dday <= 14
+                  ? 'bg-orange-50 border-orange-200 text-orange-700'
+                  : 'bg-blue-50 border-blue-200 text-blue-700'
+            const badgeClass =
+              item.dday <= 7
+                ? 'bg-red-100 text-red-700'
+                : item.dday <= 14
+                  ? 'bg-orange-100 text-orange-700'
+                  : 'bg-blue-100 text-blue-700'
+            return (
+              <div
+                key={item.id}
+                className={`flex items-center justify-between rounded-lg border px-4 py-3 ${colorClass}`}
+              >
+                <span className="text-sm font-medium truncate">{item.title}</span>
+                <span className={`ml-3 whitespace-nowrap text-xs font-bold px-2 py-0.5 rounded-full ${badgeClass}`}>
+                  {ddayLabel}
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
 
       <InsightCard />
 

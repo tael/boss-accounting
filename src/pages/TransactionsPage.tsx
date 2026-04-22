@@ -4,6 +4,7 @@ import TransactionFilter from '@/components/transactions/TransactionFilter'
 import TransactionList from '@/components/transactions/TransactionList'
 import TransactionForm from '@/components/transactions/TransactionForm'
 import BookReference from '@/components/transactions/BookReference'
+import RecurringList from '@/components/recurring/RecurringList'
 import { filterTransactions } from '@/utils/financial'
 import type { TransactionFilter as FilterState } from '@/types/transaction'
 
@@ -95,6 +96,9 @@ export default function TransactionsPage() {
           <TransactionList transactions={filtered} />
         </div>
       </div>
+
+      {/* 반복 거래 템플릿 */}
+      <RecurringList />
     </div>
   )
 }

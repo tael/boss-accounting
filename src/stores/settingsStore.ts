@@ -26,6 +26,8 @@ export interface Settings {
   hasEmployees: boolean
   /** 온보딩 완료 여부 */
   onboardingCompleted: boolean
+  /** 월 목표 순이익 (원, 0이면 미설정) */
+  monthlyProfitGoalKRW: number
 }
 
 const DEFAULT_SETTINGS: Settings = {
@@ -35,6 +37,7 @@ const DEFAULT_SETTINGS: Settings = {
   defaultPeriod: 'month',
   hasEmployees: false,
   onboardingCompleted: false,
+  monthlyProfitGoalKRW: 0,
 }
 
 interface SettingsState extends Settings {
