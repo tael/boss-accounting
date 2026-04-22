@@ -13,6 +13,17 @@ const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(file
 export default defineConfig({
   base: process.env.GITHUB_PAGES ? '/boss-accounting/' : '/',
   plugins: [react(), tailwindcss()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router'],
+          charts: ['recharts'],
+          state: ['zustand'],
+        }
+      }
+    }
+  },
   resolve: {
     alias: {
       '@': resolve(__dirname, './src')
